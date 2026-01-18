@@ -18,11 +18,9 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            /* Cursor alterado para o padrão (default) */
             cursor: default;
         }
 
-        /* Garantir que elementos clicáveis mostrem a "mãozinha" */
         a, button, [onclick], .payment-option, .dot {
             cursor: pointer;
         }
@@ -48,7 +46,7 @@
 
         .viewport-section {
             width: 100%;
-            min-height: 80vh;
+            min-height: 70vh;
             position: relative;
             display: flex;
             flex-direction: column;
@@ -274,7 +272,6 @@
             width: 12px;
             border-radius: 10px;
         }
-
     </style>
 </head>
 <body>
@@ -326,25 +323,6 @@
                     <i class="fab fa-whatsapp text-xl"></i>
                     Projeto Personalizado
                 </button>
-            </div>
-
-            <div class="grid grid-cols-2 lg:grid-cols-4 border border-white/5 bg-zinc-900/40 rounded-lg overflow-hidden">
-                <div class="p-6 border-r border-b lg:border-b-0 border-white/5 text-center">
-                    <span class="text-blue-500 text-[9px] font-bold uppercase tracking-widest">Precisão</span>
-                    <h4 class="text-lg font-bold font-sync italic mt-1">20 MICRONS</h4>
-                </div>
-                <div class="p-6 border-r border-b lg:border-b-0 border-white/5 text-center">
-                    <span class="text-blue-500 text-[9px] font-bold uppercase tracking-widest">Capacidade</span>
-                    <h4 class="text-lg font-bold font-sync italic mt-1">INDUSTRIAL</h4>
-                </div>
-                <div class="p-6 border-r border-white/5 text-center">
-                    <span class="text-blue-500 text-[9px] font-bold uppercase tracking-widest">SLA/FDM</span>
-                    <h4 class="text-lg font-bold font-sync italic mt-1">HYBRID</h4>
-                </div>
-                <div class="p-6 text-center">
-                    <span class="text-blue-500 text-[9px] font-bold uppercase tracking-widest">Entrega</span>
-                    <h4 class="text-lg font-bold font-sync italic mt-1">LOGÍSTICA</h4>
-                </div>
             </div>
         </div>
     </section>
@@ -432,6 +410,12 @@
     <script>
         const WHATSAPP_NUMBER = "5521990819172";
 
+        /**
+         * EDIÇÃO DAS IMAGENS:
+         * Basta colocar o nome do arquivo da imagem que você subiu na mesma pasta do GitHub.
+         * Exemplo: "meu_produto.jpg"
+         * Se criar uma pasta para imagens, use: "img/meu_produto.jpg"
+         */
         const arsenalData = [
             { 
                 id: 201, 
@@ -439,10 +423,7 @@
                 price: 245.00, 
                 cat: "Colecionável", 
                 serial: "CL-9982", 
-                imgs: [
-                    "https://images.unsplash.com/photo-1542641728-6ca359b085f4?q=80&w=600&h=600&auto=format&fit=crop", 
-                    "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&h=600&auto=format&fit=crop"
-                ] 
+                imgs: ["dragon_01.jpg", "dragon_02.jpg"] // <--- Coloque o nome dos seus arquivos aqui
             },
             { 
                 id: 202, 
@@ -450,10 +431,7 @@
                 price: 129.90, 
                 cat: "Setup Gaming", 
                 serial: "CL-1102", 
-                imgs: [
-                    "https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=600&h=600&auto=format&fit=crop",
-                    "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=600&h=600&auto=format&fit=crop"
-                ] 
+                imgs: ["gpu_mount_01.jpg"] 
             },
             { 
                 id: 203, 
@@ -461,7 +439,7 @@
                 price: 185.00, 
                 cat: "Decoração", 
                 serial: "CL-5541", 
-                imgs: ["https://images.unsplash.com/photo-1534073828943-f801091bb18c?q=80&w=600&h=600&auto=format&fit=crop"] 
+                imgs: ["hex_light.jpg"] 
             },
             { 
                 id: 204, 
@@ -469,10 +447,7 @@
                 price: 340.00, 
                 cat: "Técnico", 
                 serial: "CL-0029", 
-                imgs: [
-                    "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=600&h=600&auto=format&fit=crop",
-                    "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=600&h=600&auto=format&fit=crop"
-                ] 
+                imgs: ["carenagem_v2.jpg"] 
             },
             { 
                 id: 205, 
@@ -480,7 +455,7 @@
                 price: 95.00, 
                 cat: "Setup Gaming", 
                 serial: "CL-4432", 
-                imgs: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=600&h=600&auto=format&fit=crop"] 
+                imgs: ["cradle_v3.jpg"] 
             },
             { 
                 id: 206, 
@@ -488,7 +463,7 @@
                 price: 210.00, 
                 cat: "Colecionável", 
                 serial: "CL-8871", 
-                imgs: ["https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=600&h=600&auto=format&fit=crop"] 
+                imgs: ["mecha_bust.jpg"] 
             }
         ];
 
@@ -509,7 +484,7 @@
                         <div class="carousel-track" style="transform: translateX(-${carouselPositions[p.id] * 100}%)">
                             ${p.imgs.map(img => `
                                 <div class="carousel-slide">
-                                    <img src="${img}" onerror="this.src='https://via.placeholder.com/600x600/020617/3b82f6?text=CROWLAB+3D'">
+                                    <img src="${img}" alt="${p.name}">
                                 </div>`).join('')}
                         </div>
                         
@@ -586,7 +561,7 @@
 
             list.innerHTML = cart.map(i => `
                 <div class="flex gap-4 items-center bg-zinc-900/50 p-4 border border-white/5 rounded">
-                    <img src="${i.imgs[0]}" onerror="this.src='https://via.placeholder.com/100x100/020617/3b82f6?text=3D'" class="w-16 h-16 object-cover rounded">
+                    <img src="${i.imgs[0]}" alt="${i.name}" class="w-16 h-16 object-cover rounded">
                     <div class="flex-1">
                         <h4 class="text-xs font-bold uppercase italic font-sync">${i.name}</h4>
                         <div class="text-blue-500 text-xs font-bold mt-1">R$ ${(i.qty * i.price).toFixed(2)} [x${i.qty}]</div>
