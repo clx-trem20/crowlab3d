@@ -34,25 +34,22 @@
             font-family: 'Syncopate', sans-serif;
         }
 
-        /* Container padrão de tamanho normal */
         .main-container {
-            max-width: 1440px;
-            margin: 0 auto;
             width: 100%;
-            padding: 0 2rem;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
         }
 
-        /* Layout */
         .viewport-section {
             width: 100%;
-            min-height: 100vh;
+            min-height: 80vh;
             position: relative;
             display: flex;
             flex-direction: column;
             justify-content: center;
         }
 
-        /* Background Grid */
         .bg-grid {
             position: fixed;
             top: 0;
@@ -61,136 +58,107 @@
             height: 100%;
             background-image: linear-gradient(to right, #1e293b 1px, transparent 1px),
                               linear-gradient(to bottom, #1e293b 1px, transparent 1px);
-            background-size: 50px 50px;
-            mask-image: radial-gradient(circle at center, black, transparent 95%);
-            opacity: 0.15;
+            background-size: 40px 40px;
+            mask-image: radial-gradient(circle at center, black, transparent 80%);
+            opacity: 0.1;
             pointer-events: none;
             z-index: 0;
         }
 
-        /* Hero */
         .hero-title {
-            font-size: clamp(3rem, 10vw, 12rem);
+            font-size: clamp(3rem, 10vw, 10rem);
             line-height: 0.8;
             letter-spacing: -0.05em;
             font-weight: 700;
             text-transform: uppercase;
-            mix-blend-mode: difference;
             position: relative;
             z-index: 2;
             text-align: center;
         }
 
-        /* Product Card */
-        .complex-card {
-            background: rgba(15, 23, 42, 0.4);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(59, 130, 246, 0.1);
-            transition: all 0.5s cubic-bezier(0.19, 1, 0.22, 1);
+        .carousel-container {
             position: relative;
-            overflow: hidden;
-        }
-
-        .complex-card:hover {
-            background: rgba(15, 23, 42, 0.8);
-            border-color: var(--neon-blue);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(59, 130, 246, 0.1);
-        }
-
-        .card-image-display {
             width: 100%;
-            aspect-ratio: 1/1;
-            position: relative;
+            aspect-ratio: 1/1; /* Quadrado para melhor exibição de objetos 3D */
             overflow: hidden;
             background: #000;
         }
 
-        .card-image-display img {
+        .carousel-track {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.19, 1, 0.22, 1);
+            height: 100%;
+        }
+
+        .carousel-slide {
+            min-width: 100%;
+            height: 100%;
+        }
+
+        .carousel-slide img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            opacity: 0.7;
-            transition: 1.2s cubic-bezier(0.19, 1, 0.22, 1);
+            opacity: 0.8;
+            transition: 0.5s;
         }
 
-        .complex-card:hover img {
+        .complex-card:hover .carousel-slide img {
             opacity: 1;
-            transform: scale(1.1);
         }
 
-        /* Filtros */
-        .filter-nav {
-            display: flex;
-            width: 100%;
-            background: #020617;
-            border-top: 1px solid #1e293b;
-            border-bottom: 1px solid #1e293b;
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-
-        .filter-item {
-            flex: 1;
-            min-width: 180px;
-            padding: 1.5rem 1rem;
-            text-align: center;
-            border-right: 1px solid #1e293b;
-            text-transform: uppercase;
-            font-weight: 700;
-            letter-spacing: 0.2em;
-            font-size: 0.65rem;
-            transition: 0.3s;
-            color: #475569;
-        }
-
-        .filter-item:hover {
-            color: #fff;
-            background: rgba(59, 130, 246, 0.05);
-        }
-
-        .filter-item.active {
-            background: var(--neon-blue);
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0,0,0,0.7);
             color: white;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 20;
+            opacity: 0;
+            transition: 0.3s;
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
         }
 
-        /* Carrinho Lateral */
-        #cart-panel {
+        .complex-card:hover .carousel-btn {
+            opacity: 1;
+        }
+
+        .social-float {
             position: fixed;
-            top: 0;
-            right: -100%;
-            width: 100%;
-            max-width: 500px;
-            height: 100vh;
-            background: #020617;
-            z-index: 2000;
-            transition: 0.5s cubic-bezier(0.85, 0, 0.15, 1);
-            border-left: 1px solid #1e293b;
+            right: 1.5rem;
+            bottom: 1.5rem;
             display: flex;
             flex-direction: column;
+            gap: 0.75rem;
+            z-index: 1000;
         }
 
-        #cart-panel.active {
-            right: 0;
+        .float-btn {
+            width: 55px;
+            height: 55px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            color: white;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+            transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-decoration: none;
         }
 
-        /* Scanline */
-        @keyframes scan {
-            0% { transform: translateY(-100%); }
-            100% { transform: translateY(300%); }
+        .float-btn:hover {
+            transform: scale(1.1) translateY(-5px);
         }
 
-        .scan-line {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 50px;
-            background: linear-gradient(to bottom, transparent, rgba(59, 130, 246, 0.1), transparent);
-            z-index: 5;
-            animation: scan 4s linear infinite;
-            pointer-events: none;
-        }
+        .btn-wa { background: #25d366; }
+        .btn-ig { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
 
         #arsenal-grid {
             display: grid;
@@ -201,7 +169,107 @@
 
         @media (min-width: 640px) { #arsenal-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1024px) { #arsenal-grid { grid-template-columns: repeat(3, 1fr); } }
-        @media (min-width: 1280px) { #arsenal-grid { grid-template-columns: repeat(4, 1fr); } }
+
+        .filter-item {
+            padding: 1.5rem 1rem;
+            text-align: center;
+            border-right: 1px solid #1e293b;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.2em;
+            font-size: 0.65rem;
+            transition: 0.3s;
+            background: transparent;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        .filter-item.active {
+            background: var(--neon-blue);
+            color: white;
+        }
+
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+
+        .checkout-input {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            padding: 1rem;
+            width: 100%;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        .checkout-input:focus {
+            border-color: var(--neon-blue);
+            background: rgba(255,255,255,0.08);
+        }
+
+        .payment-option {
+            flex: 1;
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: 0.3s;
+            background: rgba(255,255,255,0.03);
+            border-radius: 4px;
+        }
+
+        .payment-option.selected {
+            border-color: var(--neon-blue);
+            background: rgba(59, 130, 246, 0.1);
+            color: var(--neon-blue);
+        }
+
+        .btn-custom-order {
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 1rem 2rem;
+            font-family: 'Syncopate', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            transition: 0.4s;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 2rem;
+        }
+
+        .btn-custom-order:hover {
+            background: var(--neon-blue);
+            color: white;
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
+        }
+
+        .carousel-dots {
+            position: absolute;
+            bottom: 10px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 6px;
+            z-index: 25;
+        }
+
+        .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transition: 0.3s;
+        }
+
+        .dot.active {
+            background: var(--neon-blue);
+            width: 12px;
+            border-radius: 10px;
+        }
 
     </style>
 </head>
@@ -209,195 +277,285 @@
 
     <div class="bg-grid"></div>
 
+    <!-- Botões Flutuantes Redes Sociais -->
+    <div class="social-float">
+        <a href="https://instagram.com/crowlab3d" target="_blank" class="float-btn btn-ig">
+            <i class="fab fa-instagram"></i>
+        </a>
+        <a href="javascript:void(0)" onclick="customOrder()" class="float-btn btn-wa">
+            <i class="fab fa-whatsapp"></i>
+        </a>
+    </div>
+
     <!-- Navegação -->
-    <nav class="fixed top-0 left-0 w-full z-[100] border-b border-white/5 bg-black/80 backdrop-blur-xl">
-        <div class="main-container flex justify-between items-center h-24">
+    <nav class="fixed top-0 left-0 w-full z-[100] border-b border-white/5 bg-black/90 backdrop-blur-md">
+        <div class="main-container flex justify-between items-center h-20">
             <div class="flex items-center space-x-6">
-                <div class="w-12 h-12 border border-blue-600 flex items-center justify-center rotate-45 hover:rotate-[225deg] transition-all duration-700 bg-blue-600/10">
-                    <i class="fas fa-microchip -rotate-45 text-blue-500 text-xl"></i>
+                <div class="w-10 h-10 border border-blue-500/50 flex items-center justify-center rotate-45 bg-blue-600/5">
+                    <i class="fas fa-microchip -rotate-45 text-blue-500 text-lg"></i>
                 </div>
                 <div class="flex flex-col">
-                    <span class="text-2xl font-black tracking-tighter italic font-sync leading-none">CROWLAB<span class="text-blue-600">3D</span></span>
-                    <span class="text-[7px] uppercase tracking-[0.8em] text-slate-500 mt-1 font-bold">Industrial Manufacturing</span>
+                    <span class="text-2xl font-black italic font-sync">CROWLAB<span class="text-blue-600">3D</span></span>
                 </div>
             </div>
 
-            <div class="flex items-center space-x-12">
-                <div class="hidden md:flex items-center space-x-8 text-[9px] font-bold uppercase tracking-widest text-slate-400">
-                    <a href="#arsenal" class="hover:text-blue-500 transition-colors">Produtos</a>
-                    <a href="#" class="hover:text-blue-500 transition-colors">Serviços</a>
-                </div>
-                
-                <button onclick="toggleCart()" class="relative flex items-center group">
+            <div class="flex items-center space-x-8">
+                <button onclick="toggleCart()" class="relative flex items-center">
                     <div class="text-right mr-4 hidden sm:block">
-                        <div class="text-[7px] font-bold text-slate-500 uppercase tracking-widest mb-1">Operação</div>
-                        <div id="cart-total-top" class="text-lg font-bold font-sync">R$ 0,00</div>
+                        <div id="cart-total-top" class="text-sm font-bold italic font-sync">R$ 0,00</div>
                     </div>
-                    <div class="w-14 h-14 bg-blue-600 flex items-center justify-center group-hover:bg-white group-hover:text-blue-600 transition-all rounded-sm shadow-lg shadow-blue-600/20">
-                        <i class="fas fa-shopping-basket text-lg"></i>
-                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-white text-blue-600 w-6 h-6 text-[10px] font-black flex items-center justify-center rounded-full border-2 border-black hidden">0</span>
+                    <div class="w-12 h-12 bg-blue-600 flex items-center justify-center hover:bg-white hover:text-blue-600 transition-all">
+                        <i class="fas fa-shopping-cart"></i>
+                        <span id="cart-badge" class="absolute -top-1 -right-1 bg-white text-blue-600 w-5 h-5 text-[10px] font-black flex items-center justify-center rounded-full hidden">0</span>
                     </div>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <section class="viewport-section pt-24">
-        <div class="main-container relative">
-            <div class="absolute top-0 left-0 w-full h-full pointer-events-none -z-10 flex items-center justify-center opacity-5">
-                <i class="fas fa-cube text-[40vw]"></i>
-            </div>
-
-            <div class="text-center">
+    <!-- Hero -->
+    <section class="viewport-section pt-32">
+        <div class="main-container text-center">
+            <div class="mb-16">
                 <h1 class="hero-title italic">CROWLAB</h1>
-                <h1 class="hero-title italic text-blue-600" style="margin-top: -2vw;">3D CORE</h1>
-                <p class="text-slate-500 text-sm md:text-lg max-w-2xl mx-auto mt-8 font-medium uppercase tracking-[0.3em] leading-relaxed">
-                    Sistemas de precisão para manufatura aditiva e engenharia de polímeros avançados.
-                </p>
+                <h1 class="hero-title italic text-blue-600" style="margin-top: -10px;">SYSTEMS</h1>
+                <p class="text-slate-500 text-[10px] uppercase tracking-[0.6em] mt-8">Manufatura de Alta Performance</p>
+                
+                <button onclick="customOrder()" class="btn-custom-order">
+                    <i class="fab fa-whatsapp text-xl"></i>
+                    Projeto Personalizado
+                </button>
             </div>
 
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mt-20">
-                <div class="p-8 border border-white/5 bg-white/5 backdrop-blur-sm rounded-lg text-center">
-                    <div class="text-blue-500 text-xs font-bold uppercase tracking-widest mb-2">Status</div>
-                    <div class="text-xl font-bold font-sync uppercase italic">Online</div>
+            <div class="grid grid-cols-2 lg:grid-cols-4 border border-white/5 bg-zinc-900/40 rounded-lg overflow-hidden">
+                <div class="p-6 border-r border-b lg:border-b-0 border-white/5 text-center">
+                    <span class="text-blue-500 text-[9px] font-bold uppercase tracking-widest">Precisão</span>
+                    <h4 class="text-lg font-bold font-sync italic mt-1">20 MICRONS</h4>
                 </div>
-                <div class="p-8 border border-white/5 bg-white/5 backdrop-blur-sm rounded-lg text-center">
-                    <div class="text-blue-500 text-xs font-bold uppercase tracking-widest mb-2">Resolução</div>
-                    <div class="text-xl font-bold font-sync uppercase italic">20μm</div>
+                <div class="p-6 border-r border-b lg:border-b-0 border-white/5 text-center">
+                    <span class="text-blue-500 text-[9px] font-bold uppercase tracking-widest">Capacidade</span>
+                    <h4 class="text-lg font-bold font-sync italic mt-1">INDUSTRIAL</h4>
                 </div>
-                <div class="p-8 border border-white/5 bg-white/5 backdrop-blur-sm rounded-lg text-center">
-                    <div class="text-blue-500 text-xs font-bold uppercase tracking-widest mb-2">Entrega</div>
-                    <div class="text-xl font-bold font-sync uppercase italic">Brasil</div>
+                <div class="p-6 border-r border-white/5 text-center">
+                    <span class="text-blue-500 text-[9px] font-bold uppercase tracking-widest">SLA/FDM</span>
+                    <h4 class="text-lg font-bold font-sync italic mt-1">HYBRID</h4>
                 </div>
-                <div class="p-8 border border-white/5 bg-white/5 backdrop-blur-sm rounded-lg text-center">
-                    <div class="text-blue-500 text-xs font-bold uppercase tracking-widest mb-2">Material</div>
-                    <div class="text-xl font-bold font-sync uppercase italic">PETG+CF</div>
+                <div class="p-6 text-center">
+                    <span class="text-blue-500 text-[9px] font-bold uppercase tracking-widest">Entrega</span>
+                    <h4 class="text-lg font-bold font-sync italic mt-1">LOGÍSTICA</h4>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- Filtros Centralizados -->
-    <div class="sticky top-24 z-50 bg-black/90 backdrop-blur-md">
+    <!-- Filtros -->
+    <div class="sticky top-20 z-50 bg-black/95 border-y border-white/5">
         <div class="main-container">
-            <div class="filter-nav">
+            <div class="flex overflow-x-auto no-scrollbar">
                 <button onclick="applyFilter('Todos', this)" class="filter-item active">Todos</button>
                 <button onclick="applyFilter('Colecionável', this)" class="filter-item">Colecionáveis</button>
-                <button onclick="applyFilter('Setup Gaming', this)" class="filter-item">Gaming</button>
-                <button onclick="applyFilter('Decoração', this)" class="filter-item">Design</button>
-                <button onclick="applyFilter('Técnico', this)" class="filter-item">Técnico</button>
+                <button onclick="applyFilter('Setup Gaming', this)" class="filter-item">Setup Gaming</button>
+                <button onclick="applyFilter('Decoração', this)" class="filter-item">Decoração</button>
+                <button onclick="applyFilter('Técnico', this)" class="filter-item">Peças Técnicas</button>
             </div>
         </div>
     </div>
 
-    <!-- Grid de Produtos -->
-    <section id="arsenal" class="py-20">
+    <!-- Arsenal -->
+    <section class="py-12">
         <div class="main-container">
-            <div id="arsenal-grid">
-                <!-- Render dinâmico -->
-            </div>
+            <div id="arsenal-grid"></div>
         </div>
     </section>
 
-    <!-- Footer -->
-    <footer class="bg-black border-t border-white/5 py-24">
-        <div class="main-container">
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-16">
-                <div class="col-span-1 lg:col-span-2">
-                    <h2 class="text-4xl font-black italic font-sync mb-8">CROWLAB<span class="text-blue-600">3D</span></h2>
-                    <p class="text-slate-500 max-w-md leading-loose uppercase text-xs tracking-wider">
-                        Especialistas em transformar conceitos digitais em realidade física através de tecnologias de ponta em impressão 3D FDM e Resina.
-                    </p>
-                </div>
-                <div>
-                    <h5 class="text-white font-bold uppercase text-xs tracking-widest mb-8">Links</h5>
-                    <ul class="space-y-4 text-slate-500 text-xs uppercase font-bold tracking-widest">
-                        <li><a href="#" class="hover:text-blue-500 transition-colors">Termos de Uso</a></li>
-                        <li><a href="#" class="hover:text-blue-500 transition-colors">Envios</a></li>
-                        <li><a href="#" class="hover:text-blue-500 transition-colors">Privacidade</a></li>
-                    </ul>
-                </div>
-                <div>
-                    <h5 class="text-white font-bold uppercase text-xs tracking-widest mb-8">Redes</h5>
-                    <div class="flex space-x-6 text-2xl">
-                        <a href="#" class="text-slate-500 hover:text-white transition-colors"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="text-slate-500 hover:text-white transition-colors"><i class="fab fa-whatsapp"></i></a>
-                    </div>
-                </div>
+    <!-- Rodapé -->
+    <footer class="bg-black border-t border-white/5 py-20">
+        <div class="main-container text-center">
+            <h2 class="text-4xl font-black italic font-sync uppercase mb-6">CROWLAB<span class="text-blue-600">3D</span></h2>
+            <p class="text-slate-600 text-xs tracking-widest uppercase mb-10">Tecnologia em constante evolução.</p>
+            
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-6 mb-12">
+                <button onclick="customOrder()" class="bg-zinc-900 border border-white/10 px-8 py-4 text-[10px] font-bold uppercase tracking-[0.3em] hover:bg-white hover:text-black transition-all">
+                    Solicitar Orçamento Personalizado
+                </button>
             </div>
-            <div class="mt-24 pt-8 border-t border-white/5 text-center text-[9px] text-slate-700 uppercase tracking-[0.5em]">
-                © 2026 CrowLab3D - Sistemas de Manufatura Avançada
+
+            <div class="pt-8 border-t border-white/5">
+                <p class="text-[10px] text-slate-700 font-sync uppercase tracking-[0.4em]">
+                    © 2025 – Criado por CLX
+                </p>
             </div>
         </div>
     </footer>
 
-    <!-- Carrinho -->
-    <div id="cart-panel">
-        <div class="p-8 border-b border-white/10 flex justify-between items-center">
-            <h2 class="text-xl font-bold uppercase italic font-sync">Carrinho</h2>
-            <button onclick="toggleCart()" class="w-10 h-10 flex items-center justify-center hover:bg-white/10 transition-colors">
-                <i class="fas fa-times"></i>
+    <!-- Painel Lateral -->
+    <div id="cart-panel" class="fixed top-0 right-[-100%] w-full max-w-[500px] h-screen bg-zinc-950 z-[2000] transition-all duration-500 border-l border-white/10 flex flex-col">
+        <div class="p-8 border-b border-white/10 flex justify-between items-center bg-black">
+            <h2 id="panel-title" class="text-xl font-bold font-sync italic">CARRINHO</h2>
+            <button onclick="toggleCart()" class="text-white hover:text-red-500 transition-colors">
+                <i class="fas fa-times text-xl"></i>
             </button>
-        </div>
-        
-        <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-6">
-            <!-- Render dinâmico -->
         </div>
 
-        <div id="cart-summary" class="p-8 border-t border-white/10 bg-white/5">
-            <div class="flex justify-between items-center mb-8">
-                <div class="text-[10px] font-bold text-slate-500 uppercase">Subtotal</div>
-                <div id="cart-grand-total" class="text-3xl font-bold italic font-sync text-blue-500">R$ 0,00</div>
+        <div id="view-cart" class="flex-1 flex flex-col overflow-hidden">
+            <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-6"></div>
+            <div class="p-8 border-t border-white/10 bg-black">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-xs uppercase font-bold text-slate-500">Subtotal</span>
+                    <span id="cart-grand-total" class="text-3xl font-black font-sync italic text-blue-600">R$ 0,00</span>
+                </div>
+                <button onclick="goToCheckout()" id="btn-next-step" class="w-full bg-blue-600 py-6 text-white font-sync font-black uppercase italic hover:bg-white hover:text-blue-600 transition-all disabled:opacity-50 disabled:pointer-events-none">Prosseguir para Dados</button>
             </div>
-            <button onclick="processOrder()" class="w-full bg-blue-600 hover:bg-white hover:text-blue-600 text-white font-bold py-5 rounded-sm transition-all uppercase tracking-widest text-sm italic font-sync">
-                Finalizar Pedido
-            </button>
+        </div>
+
+        <div id="view-checkout" class="flex-1 flex flex-col overflow-hidden hidden">
+            <div class="flex-1 overflow-y-auto p-8 space-y-4">
+                <label class="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Identificação</label>
+                <input type="text" id="user-name" placeholder="Nome Completo" class="checkout-input">
+                <input type="text" id="user-cpf" placeholder="CPF" class="checkout-input">
+                
+                <label class="text-[10px] uppercase font-bold text-slate-500 tracking-widest mt-4 block">Logística de Entrega</label>
+                <textarea id="user-address" placeholder="Endereço Completo (Rua, Nº, Complemento, Bairro, Cidade, CEP)" class="checkout-input h-32"></textarea>
+                
+                <label class="text-[10px] uppercase font-bold text-slate-500 tracking-widest mt-4 block">Método de Pagamento</label>
+                <div class="flex gap-4">
+                    <div id="pay-pix" onclick="selectPayment('Pix')" class="payment-option font-bold">PIX</div>
+                    <div id="pay-boleto" onclick="selectPayment('Boleto')" class="payment-option font-bold">BOLETO</div>
+                </div>
+            </div>
+            <div class="p-8 border-t border-white/10 bg-black">
+                <div class="flex gap-4">
+                    <button onclick="backToCart()" class="flex-1 border border-white/10 py-6 text-white font-sync font-bold uppercase italic text-xs">Voltar</button>
+                    <button onclick="processOrder()" class="flex-[2] bg-blue-600 py-6 text-white font-sync font-black uppercase italic hover:bg-white hover:text-blue-600 transition-all">Finalizar no WhatsApp</button>
+                </div>
+            </div>
         </div>
     </div>
 
     <script>
+        const WHATSAPP_NUMBER = "5521990819172";
+
+        // OBJECTO DE DADOS: Agora adicionei 2 imagens a mais itens para veres os carrosséis.
         const arsenalData = [
-            { id: 201, name: "Dragon Zero", price: 245.00, cat: "Colecionável", serial: "CL-9982", img: "https://images.unsplash.com/photo-1590233464442-553fd340cce9?q=80&w=800" },
-            { id: 202, name: "GPU Vertical", price: 129.90, cat: "Setup Gaming", serial: "CL-1102", img: "https://images.unsplash.com/photo-1587202392411-e1b212879793?q=80&w=800" },
-            { id: 203, name: "Node Hex Light", price: 185.00, cat: "Decoração", serial: "CL-5541", img: "https://images.unsplash.com/photo-1534073828943-f801091bb18c?q=80&w=800" },
-            { id: 204, name: "Case Industrial", price: 340.00, cat: "Técnico", serial: "CL-0029", img: "https://images.unsplash.com/photo-1537462715879-360eeb61a0ad?q=80&w=800" },
-            { id: 205, name: "Headset Stand", price: 95.00, cat: "Setup Gaming", serial: "CL-4432", img: "https://images.unsplash.com/photo-1589254065878-42c9da997008?q=80&w=800" },
-            { id: 206, name: "Mecha Unit", price: 210.00, cat: "Colecionável", serial: "CL-8871", img: "https://images.unsplash.com/photo-1558655146-d09347e92766?q=80&w=800" },
-            { id: 207, name: "Fractal Vase", price: 115.00, cat: "Decoração", serial: "CL-3321", img: "https://images.unsplash.com/photo-1485955900006-10f4d324d411?q=80&w=800" },
-            { id: 208, name: "Engrenagem Pro", price: 155.00, cat: "Técnico", serial: "CL-1092", img: "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=800" }
+            { 
+                id: 201, 
+                name: "Escultura Dragon Zero", 
+                price: 245.00, 
+                cat: "Colecionável", 
+                serial: "CL-9982", 
+                imgs: [
+                    "https://images.unsplash.com/photo-1542641728-6ca359b085f4?q=80&w=600&h=600&auto=format&fit=crop", 
+                    "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?q=80&w=600&h=600&auto=format&fit=crop"
+                ] 
+            },
+            { 
+                id: 202, 
+                name: "Vertical GPU Mount", 
+                price: 129.90, 
+                cat: "Setup Gaming", 
+                serial: "CL-1102", 
+                imgs: [
+                    "https://images.unsplash.com/photo-1591488320449-011701bb6704?q=80&w=600&h=600&auto=format&fit=crop",
+                    "https://images.unsplash.com/photo-1587202372775-e229f172b9d7?q=80&w=600&h=600&auto=format&fit=crop"
+                ] 
+            },
+            { 
+                id: 203, 
+                name: "Node Light Hex", 
+                price: 185.00, 
+                cat: "Decoração", 
+                serial: "CL-5541", 
+                imgs: ["https://images.unsplash.com/photo-1534073828943-f801091bb18c?q=80&w=600&h=600&auto=format&fit=crop"] 
+            },
+            { 
+                id: 204, 
+                name: "Carenagem Industrial", 
+                price: 340.00, 
+                cat: "Técnico", 
+                serial: "CL-0029", 
+                imgs: [
+                    "https://images.unsplash.com/photo-1581092160562-40aa08e78837?q=80&w=600&h=600&auto=format&fit=crop",
+                    "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?q=80&w=600&h=600&auto=format&fit=crop"
+                ] 
+            },
+            { 
+                id: 205, 
+                name: "Headset Cradle V3", 
+                price: 95.00, 
+                cat: "Setup Gaming", 
+                serial: "CL-4432", 
+                imgs: ["https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=600&h=600&auto=format&fit=crop"] 
+            },
+            { 
+                id: 206, 
+                name: "Busto Mecha-Unit", 
+                price: 210.00, 
+                cat: "Colecionável", 
+                serial: "CL-8871", 
+                imgs: ["https://images.unsplash.com/photo-1563089145-599997674d42?q=80&w=600&h=600&auto=format&fit=crop"] 
+            }
         ];
 
         let cart = [];
+        let selectedPayment = '';
+        const carouselPositions = {};
 
         function renderArsenal(filter = 'Todos') {
             const grid = document.getElementById('arsenal-grid');
             const data = filter === 'Todos' ? arsenalData : arsenalData.filter(p => p.cat === filter);
             
-            grid.innerHTML = data.map(p => `
-                <div class="complex-card group rounded-xl">
-                    <div class="card-image-display">
-                        <div class="scan-line"></div>
-                        <img src="${p.img}" alt="${p.name}">
-                        <div class="absolute bottom-4 left-4 z-10 bg-blue-600 px-3 py-1 text-[8px] font-black uppercase italic rounded-sm">
-                            ${p.serial}
+            grid.innerHTML = data.map(p => {
+                // Iniciar posição se não existir
+                if (carouselPositions[p.id] === undefined) carouselPositions[p.id] = 0;
+
+                return `
+                <div class="complex-card group border border-white/10 bg-zinc-900/20 rounded-xl overflow-hidden hover:border-blue-500/50 transition-all duration-300">
+                    <div class="carousel-container" id="carousel-${p.id}">
+                        <div class="carousel-track" style="transform: translateX(-${carouselPositions[p.id] * 100}%)">
+                            ${p.imgs.map(img => `
+                                <div class="carousel-slide">
+                                    <img src="${img}" onerror="this.src='https://via.placeholder.com/600x600/020617/3b82f6?text=CROWLAB+3D'">
+                                </div>`).join('')}
                         </div>
-                    </div>
-                    <div class="p-8">
-                        <div class="text-blue-500 text-[9px] font-bold uppercase tracking-widest mb-3 italic">${p.cat}</div>
-                        <h3 class="text-xl font-bold text-white uppercase italic tracking-tighter mb-8 group-hover:text-blue-500 transition-colors font-sync">${p.name}</h3>
-                        <div class="flex justify-between items-center">
-                            <div>
-                                <div class="text-[8px] text-slate-600 uppercase font-bold mb-1 tracking-widest">Unidade</div>
-                                <div class="text-2xl font-black italic font-sync">R$ ${p.price.toFixed(2)}</div>
+                        
+                        ${p.imgs.length > 1 ? `
+                            <button onclick="moveCarousel(${p.id}, -1)" class="carousel-btn left-2"><i class="fas fa-chevron-left"></i></button>
+                            <button onclick="moveCarousel(${p.id}, 1)" class="carousel-btn right-2"><i class="fas fa-chevron-right"></i></button>
+                            <div class="carousel-dots">
+                                ${p.imgs.map((_, idx) => `<div class="dot ${idx === carouselPositions[p.id] ? 'active' : ''}"></div>`).join('')}
                             </div>
-                            <button onclick="addToCart(${p.id})" class="w-12 h-12 bg-white/5 border border-white/10 flex items-center justify-center hover:bg-blue-600 hover:scale-110 transition-all rounded-lg">
+                        ` : ''}
+                    </div>
+                    <div class="p-6">
+                        <div class="text-blue-500 text-[9px] font-bold uppercase tracking-widest mb-1 italic font-sync">${p.cat}</div>
+                        <h3 class="text-lg font-bold uppercase italic font-sync mb-4 h-12 overflow-hidden">${p.name}</h3>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xl font-black italic font-sync">R$ ${p.price.toFixed(2)}</span>
+                            <button onclick="addToCart(${p.id})" class="w-10 h-10 bg-blue-600 flex items-center justify-center hover:bg-white hover:text-blue-600 transition-all rounded">
                                 <i class="fas fa-plus"></i>
                             </button>
                         </div>
                     </div>
                 </div>
-            `).join('');
+            `}).join('');
+        }
+
+        function moveCarousel(id, direction) {
+            const prod = arsenalData.find(p => p.id === id);
+            const total = prod.imgs.length;
+            
+            // Atualizar posição
+            carouselPositions[id] = (carouselPositions[id] + direction + total) % total;
+            
+            // Atualizar Track
+            const track = document.querySelector(`#carousel-${id} .carousel-track`);
+            if (track) track.style.transform = `translateX(-${carouselPositions[id] * 100}%)`;
+
+            // Atualizar Dots
+            const dots = document.querySelectorAll(`#carousel-${id} .dot`);
+            dots.forEach((dot, idx) => {
+                dot.classList.toggle('active', idx === carouselPositions[id]);
+            });
         }
 
         function applyFilter(cat, btn) {
@@ -407,7 +565,10 @@
         }
 
         function toggleCart() {
-            document.getElementById('cart-panel').classList.toggle('active');
+            const panel = document.getElementById('cart-panel');
+            const isClosing = panel.style.right === '0px';
+            panel.style.right = isClosing ? '-100%' : '0px';
+            if(isClosing) setTimeout(backToCart, 500);
         }
 
         function addToCart(id) {
@@ -421,37 +582,29 @@
         function updateCartUI() {
             const count = cart.reduce((a, b) => a + b.qty, 0);
             const total = cart.reduce((a, b) => a + (b.price * b.qty), 0);
-            
             const badge = document.getElementById('cart-badge');
             badge.innerText = count;
             badge.classList.toggle('hidden', count === 0);
             document.getElementById('cart-total-top').innerText = `R$ ${total.toFixed(2)}`;
             document.getElementById('cart-grand-total').innerText = `R$ ${total.toFixed(2)}`;
+            document.getElementById('btn-next-step').disabled = count === 0;
 
             const list = document.getElementById('cart-items');
             if(cart.length === 0) {
-                list.innerHTML = `<div class="text-center py-20 text-slate-700 uppercase font-bold text-[10px] tracking-widest">Carrinho Vazio</div>`;
-                document.getElementById('cart-summary').classList.add('hidden');
-            } else {
-                document.getElementById('cart-summary').classList.remove('hidden');
-                list.innerHTML = cart.map(i => `
-                    <div class="flex gap-4 items-center bg-white/5 p-4 rounded-lg border border-white/5">
-                        <div class="w-20 h-20 rounded overflow-hidden">
-                             <img src="${i.img}" class="w-full h-full object-cover">
-                        </div>
-                        <div class="flex-1">
-                            <h4 class="text-sm font-bold uppercase italic font-sync leading-none">${i.name}</h4>
-                            <div class="flex justify-between items-center mt-3">
-                                <span class="text-[10px] text-slate-500">QTD: ${i.qty}</span>
-                                <span class="text-sm font-bold text-blue-500">R$ ${(i.qty * i.price).toFixed(2)}</span>
-                            </div>
-                        </div>
-                        <button onclick="removeFromCart(${i.id})" class="text-slate-600 hover:text-red-500 px-2 transition-colors">
-                            <i class="fas fa-trash-alt"></i>
-                        </button>
-                    </div>
-                `).join('');
+                list.innerHTML = `<div class="text-center py-20 text-slate-600 uppercase text-xs font-bold tracking-widest">Nenhum item detectado</div>`;
+                return;
             }
+
+            list.innerHTML = cart.map(i => `
+                <div class="flex gap-4 items-center bg-zinc-900/50 p-4 border border-white/5 rounded">
+                    <img src="${i.imgs[0]}" onerror="this.src='https://via.placeholder.com/100x100/020617/3b82f6?text=3D'" class="w-16 h-16 object-cover rounded">
+                    <div class="flex-1">
+                        <h4 class="text-xs font-bold uppercase italic font-sync">${i.name}</h4>
+                        <div class="text-blue-500 text-xs font-bold mt-1">R$ ${(i.qty * i.price).toFixed(2)} [x${i.qty}]</div>
+                    </div>
+                    <button onclick="removeFromCart(${i.id})" class="text-slate-600 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('');
         }
 
         function removeFromCart(id) {
@@ -459,11 +612,59 @@
             updateCartUI();
         }
 
+        function goToCheckout() {
+            document.getElementById('view-cart').classList.add('hidden');
+            document.getElementById('view-checkout').classList.remove('hidden');
+            document.getElementById('panel-title').innerText = 'CHECKOUT';
+        }
+
+        function backToCart() {
+            document.getElementById('view-cart').classList.remove('hidden');
+            document.getElementById('view-checkout').classList.add('hidden');
+            document.getElementById('panel-title').innerText = 'CARRINHO';
+        }
+
+        function selectPayment(mode) {
+            selectedPayment = mode;
+            document.getElementById('pay-pix').classList.toggle('selected', mode === 'Pix');
+            document.getElementById('pay-boleto').classList.toggle('selected', mode === 'Boleto');
+        }
+
+        function customOrder() {
+            const msg = `🛸 *CROWLAB3D - SOLICITAÇÃO DE PROJETO*\n\nOlá! Gostaria de solicitar um *ORÇAMENTO PERSONALIZADO* para um projeto em 3D.`;
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
+        }
+
         function processOrder() {
-            let msg = `🛸 *CROWLAB3D - NOVO PEDIDO*\n\n`;
-            cart.forEach(i => msg += `- ${i.name} [${i.serial}] x${i.qty}\n`);
-            msg += `\n*TOTAL: ${document.getElementById('cart-grand-total').innerText}*`;
-            window.open(`https://wa.me/5521990819172?text=${encodeURIComponent(msg)}`);
+            const name = document.getElementById('user-name').value.trim();
+            const cpf = document.getElementById('user-cpf').value.trim();
+            const address = document.getElementById('user-address').value.trim();
+
+            if(!name || !cpf || !address || !selectedPayment) {
+                alertBox("Por favor, preencha todos os campos e selecione a forma de pagamento.");
+                return;
+            }
+
+            let msg = `🛸 *CROWLAB3D - NOVO PROTOCOLO DE COMPRA*\n\n`;
+            msg += `👤 *CLIENTE:* ${name}\n`;
+            msg += `📄 *CPF:* ${cpf}\n`;
+            msg += `📍 *ENDEREÇO:* ${address}\n`;
+            msg += `💳 *PAGAMENTO:* ${selectedPayment}\n\n`;
+            
+            msg += `📦 *ITENS DO PEDIDO:*\n`;
+            cart.forEach(i => msg += `- ${i.name} [x${i.qty}] - R$ ${(i.qty * i.price).toFixed(2)}\n`);
+            
+            msg += `\n💰 *VALOR TOTAL: ${document.getElementById('cart-grand-total').innerText}*`;
+            
+            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`);
+        }
+
+        function alertBox(text) {
+            const box = document.createElement('div');
+            box.className = "fixed top-10 left-1/2 -translate-x-1/2 bg-red-600 text-white px-8 py-4 z-[3000] font-bold uppercase text-[10px] tracking-widest rounded shadow-2xl";
+            box.innerText = text;
+            document.body.appendChild(box);
+            setTimeout(() => box.remove(), 3000);
         }
 
         document.addEventListener('DOMContentLoaded', () => renderArsenal());
