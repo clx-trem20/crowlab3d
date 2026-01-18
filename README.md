@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
@@ -9,6 +10,9 @@
         body {
             background-color: #0f172a;
             color: #f8fafc;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
         }
         .custom-scrollbar::-webkit-scrollbar {
             width: 8px;
@@ -32,7 +36,7 @@
         .carousel-container {
             position: relative;
             width: 100%;
-            height: 256px; /* h-64 */
+            height: 320px; /* Aumentado para preencher melhor a tela */
             overflow: hidden;
         }
         .carousel-track {
@@ -55,7 +59,7 @@
             transform: translateY(-50%);
             background: rgba(15, 23, 42, 0.6);
             color: white;
-            padding: 8px;
+            padding: 12px;
             cursor: pointer;
             border-radius: 50%;
             opacity: 0;
@@ -65,21 +69,21 @@
         .product-card:hover .carousel-btn {
             opacity: 1;
         }
-        .btn-prev { left: 10px; }
-        .btn-next { right: 10px; }
+        .btn-prev { left: 15px; }
+        .btn-next { right: 15px; }
         
         .carousel-dots {
             position: absolute;
-            bottom: 10px;
+            bottom: 15px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
-            gap: 6px;
+            gap: 8px;
             z-index: 10;
         }
         .dot {
-            width: 8px;
-            height: 8px;
+            width: 10px;
+            height: 10px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.3);
             transition: background 0.3s;
@@ -96,6 +100,7 @@
             animation: fadeIn 0.3s ease-out forwards;
         }
 
+        /* Botões Flutuantes */
         .social-float-container {
             position: fixed;
             bottom: 30px;
@@ -107,15 +112,15 @@
         }
 
         .float-btn {
-            width: 60px;
-            height: 60px;
+            width: 65px;
+            height: 65px;
             border-radius: 50px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 30px;
             color: white;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
             transition: all 0.3s ease;
             cursor: pointer;
             position: relative;
@@ -127,10 +132,10 @@
 
         .float-tooltip {
             position: absolute;
-            right: 75px;
+            right: 80px;
             background: #1e293b;
             color: white;
-            padding: 8px 15px;
+            padding: 10px 18px;
             border-radius: 8px;
             font-size: 14px;
             white-space: nowrap;
@@ -140,53 +145,78 @@
             border: 1px solid #334155;
         }
         .float-btn:hover .float-tooltip { opacity: 1; }
+
+        /* Estilo da Seção Hero Full Width */
+        .hero-banner {
+            background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.9)), url('https://images.unsplash.com/photo-1581092160562-40aa08e78837?auto=format&fit=crop&q=80&w=2070');
+            background-size: cover;
+            background-position: center;
+            min-height: 60vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 </head>
 <body class="font-sans antialiased">
 
-    <!-- Navegação -->
-    <nav class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 px-6 py-4">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center space-x-2">
-                <i class="fas fa-cube text-blue-500 text-3xl"></i>
-                <span class="text-2xl font-bold tracking-tighter uppercase">CROWLAB<span class="text-blue-500">3D</span></span>
+    <!-- Navegação Full Width -->
+    <nav class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur-lg border-b border-slate-800 w-full px-8 py-5">
+        <div class="w-full flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <i class="fas fa-cube text-blue-500 text-4xl"></i>
+                <span class="text-3xl font-black tracking-tighter uppercase">CROWLAB<span class="text-blue-500">3D</span></span>
             </div>
             
-            <div class="relative">
-                <button onclick="toggleCart()" class="p-2 hover:bg-slate-800 rounded-full transition relative">
-                    <i class="fas fa-shopping-cart text-xl text-slate-300"></i>
-                    <span id="cart-count" class="absolute -top-1 -right-1 bg-blue-600 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full hidden">0</span>
+            <div class="flex items-center space-x-6">
+                <button onclick="toggleCart()" class="p-3 hover:bg-slate-800 rounded-full transition relative">
+                    <i class="fas fa-shopping-cart text-2xl text-slate-300"></i>
+                    <span id="cart-count" class="absolute top-1 right-1 bg-blue-600 text-white text-xs w-6 h-6 flex items-center justify-center rounded-full hidden font-bold">0</span>
                 </button>
             </div>
         </div>
     </nav>
 
-    <!-- Hero Section -->
-    <header class="py-20 px-6 text-center">
-        <h1 class="text-5xl md:text-7xl font-extrabold mb-6 bg-gradient-to-r from-blue-400 to-indigo-500 bg-clip-text text-transparent uppercase">
+    <!-- Hero Section Full Width -->
+    <header class="hero-banner px-6 text-center w-full">
+        <h1 class="text-6xl md:text-8xl font-black mb-6 bg-gradient-to-r from-blue-400 via-indigo-400 to-blue-600 bg-clip-text text-transparent uppercase tracking-tight">
             CROWLAB3D
         </h1>
-        <p class="text-slate-400 text-lg max-w-2xl mx-auto">
-            Explora a vanguarda da impressão e modelação 3D. Peças exclusivas e protótipos de alta precisão.
+        <p class="text-slate-300 text-xl md:text-2xl max-w-4xl mx-auto font-light leading-relaxed">
+            A nova era da fabricação digital. Impressões de alta definição, prototipagem rápida e designs exclusivos para o teu setup ou coleção.
         </p>
+        <div class="mt-10">
+            <a href="#products-grid" class="bg-blue-600 hover:bg-blue-700 text-white px-10 py-4 rounded-full font-bold text-lg transition-all hover:scale-105 inline-block">
+                Explorar Catálogo
+            </a>
+        </div>
     </header>
 
-    <!-- Galeria de Produtos -->
-    <main class="max-w-7xl mx-auto px-6 pb-20">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8" id="products-grid">
+    <!-- Galeria de Produtos Grid Responsivo -->
+    <main class="w-full px-4 md:px-8 py-16">
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-10" id="products-grid">
             <!-- Os produtos serão injetados aqui via JS -->
         </div>
     </main>
 
-    <!-- Rodapé -->
-    <footer class="border-t border-slate-800 py-10 text-center">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex items-center justify-center space-x-2 mb-4">
-                <i class="fas fa-cube text-blue-500 text-xl"></i>
-                <span class="text-lg font-bold tracking-tighter uppercase">CROWLAB<span class="text-blue-500">3D</span></span>
+    <!-- Rodapé Full Width -->
+    <footer class="border-t border-slate-800 py-16 text-center w-full bg-slate-950">
+        <div class="px-8">
+            <div class="flex items-center justify-center space-x-3 mb-6">
+                <i class="fas fa-cube text-blue-500 text-3xl"></i>
+                <span class="text-2xl font-black tracking-tighter uppercase">CROWLAB<span class="text-blue-500">3D</span></span>
             </div>
-            <p class="text-slate-500 text-sm">
-                © 2026 – Criado por CLX
+            <p class="text-slate-400 text-lg mb-8 max-w-xl mx-auto">
+                Transformamos ideias digitais em realidade física com a melhor tecnologia 3D do mercado.
+            </p>
+            <div class="flex justify-center space-x-6 mb-10">
+                <a href="#" class="text-slate-500 hover:text-blue-500 text-2xl transition"><i class="fab fa-instagram"></i></a>
+                <a href="#" class="text-slate-500 hover:text-blue-500 text-2xl transition"><i class="fab fa-facebook"></i></a>
+                <a href="#" class="text-slate-500 hover:text-blue-500 text-2xl transition"><i class="fab fa-whatsapp"></i></a>
+            </div>
+            <p class="text-slate-600 text-sm">
+                © 2026 CrowLab3D – Todos os direitos reservados. Criado por CLX
             </p>
         </div>
     </footer>
@@ -204,22 +234,25 @@
     </div>
 
     <!-- Carrinho Lateral -->
-    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full md:w-96 bg-slate-900 shadow-2xl z-[60] transform translate-x-full transition-transform duration-300 ease-in-out border-l border-slate-800">
+    <div id="cart-drawer" class="fixed inset-y-0 right-0 w-full md:w-[450px] bg-slate-900 shadow-2xl z-[60] transform translate-x-full transition-transform duration-300 ease-in-out border-l border-slate-800">
         <div class="h-full flex flex-col">
-            <div class="p-6 border-b border-slate-800 flex justify-between items-center">
-                <h2 class="text-xl font-bold">O Seu Carrinho</h2>
-                <button onclick="toggleCart()" class="text-slate-400 hover:text-white text-xl"><i class="fas fa-times"></i></button>
+            <div class="p-8 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <h2 class="text-2xl font-black uppercase tracking-tight">O Teu Carrinho</h2>
+                <button onclick="toggleCart()" class="text-slate-400 hover:text-white text-2xl transition"><i class="fas fa-times"></i></button>
             </div>
-            <div id="cart-items-container" class="flex-1 overflow-y-auto p-6 space-y-4 custom-scrollbar">
-                <div id="cart-items-list" class="space-y-4"></div>
-                <p id="empty-cart-msg" class="text-slate-500 text-center py-10">O carrinho está vazio.</p>
-            </div>
-            <div id="cart-footer" class="p-6 border-t border-slate-800 hidden">
-                <div class="flex justify-between items-center mb-6">
-                    <span class="text-slate-400">Total:</span>
-                    <span id="cart-total" class="text-2xl font-bold text-blue-400">R$ 0,00</span>
+            <div id="cart-items-container" class="flex-1 overflow-y-auto p-8 space-y-6 custom-scrollbar">
+                <div id="cart-items-list" class="space-y-6"></div>
+                <div id="empty-cart-msg" class="text-slate-500 text-center py-20">
+                    <i class="fas fa-shopping-basket text-5xl mb-4 block opacity-20"></i>
+                    <p class="text-xl">O carrinho está vazio.</p>
                 </div>
-                <button onclick="showCheckout()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl transition">
+            </div>
+            <div id="cart-footer" class="p-8 border-t border-slate-800 bg-slate-950 hidden">
+                <div class="flex justify-between items-center mb-8">
+                    <span class="text-slate-400 text-lg uppercase tracking-wider">Subtotal:</span>
+                    <span id="cart-total" class="text-3xl font-black text-blue-400">R$ 0,00</span>
+                </div>
+                <button onclick="showCheckout()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-black py-5 rounded-2xl transition-all text-xl uppercase tracking-tighter shadow-lg shadow-blue-900/20">
                     Finalizar Compra
                 </button>
             </div>
@@ -227,50 +260,50 @@
     </div>
 
     <!-- Modal de Checkout -->
-    <div id="checkout-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4 bg-slate-950/90 backdrop-blur-sm">
-        <div class="bg-slate-900 w-full max-w-2xl rounded-2xl border border-slate-800 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="p-8">
-                <div class="flex justify-between items-center mb-8">
-                    <h2 class="text-3xl font-bold">Finalizar Encomenda</h2>
-                    <button onclick="hideCheckout()" class="text-slate-400 hover:text-white text-2xl"><i class="fas fa-times"></i></button>
+    <div id="checkout-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-4 bg-slate-950/95 backdrop-blur-md">
+        <div class="bg-slate-900 w-full max-w-3xl rounded-3xl border border-slate-800 max-h-[95vh] overflow-y-auto custom-scrollbar shadow-2xl">
+            <div class="p-10">
+                <div class="flex justify-between items-center mb-10">
+                    <h2 class="text-4xl font-black uppercase tracking-tight italic">Checkout</h2>
+                    <button onclick="hideCheckout()" class="text-slate-400 hover:text-white text-3xl"><i class="fas fa-times"></i></button>
                 </div>
-                <form id="checkout-form" onsubmit="handleOrder(event)" class="space-y-6">
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <form id="checkout-form" onsubmit="handleOrder(event)" class="space-y-8">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                         <div>
-                            <label class="block text-slate-400 mb-2">Nome Completo</label>
-                            <input type="text" required name="nome" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none text-white">
+                            <label class="block text-slate-400 text-sm font-bold mb-3 uppercase tracking-wider">Nome Completo</label>
+                            <input type="text" required name="nome" class="w-full bg-slate-800 border-2 border-slate-700 rounded-xl p-4 focus:border-blue-500 outline-none text-white transition-all">
                         </div>
                         <div>
-                            <label class="block text-slate-400 mb-2">CPF</label>
-                            <input type="text" required name="cpf" placeholder="000.000.000-00" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none text-white">
+                            <label class="block text-slate-400 text-sm font-bold mb-3 uppercase tracking-wider">CPF / NIF</label>
+                            <input type="text" required name="cpf" placeholder="000.000.000-00" class="w-full bg-slate-800 border-2 border-slate-700 rounded-xl p-4 focus:border-blue-500 outline-none text-white transition-all">
                         </div>
                     </div>
                     <div>
-                        <label class="block text-slate-400 mb-2">Endereço Completo</label>
-                        <textarea required name="endereco" rows="3" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-3 focus:ring-2 focus:ring-blue-500 outline-none text-white"></textarea>
+                        <label class="block text-slate-400 text-sm font-bold mb-3 uppercase tracking-wider">Morada de Entrega</label>
+                        <textarea required name="endereco" rows="3" class="w-full bg-slate-800 border-2 border-slate-700 rounded-xl p-4 focus:border-blue-500 outline-none text-white transition-all"></textarea>
                     </div>
                     <div>
-                        <label class="block text-slate-400 mb-4">Forma de Pagamento</label>
-                        <div class="grid grid-cols-2 gap-4">
+                        <label class="block text-slate-400 text-sm font-bold mb-5 uppercase tracking-wider">Método de Pagamento</label>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             <label class="cursor-pointer">
                                 <input type="radio" name="pagamento" value="pix" class="hidden peer" checked>
-                                <div class="p-4 border border-slate-700 rounded-xl flex items-center justify-center space-x-2 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition">
-                                    <i class="fa-brands fa-pix text-cyan-400"></i>
-                                    <span>Pix</span>
+                                <div class="p-5 border-2 border-slate-700 rounded-2xl flex items-center justify-center space-x-3 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition-all hover:bg-slate-800">
+                                    <i class="fa-brands fa-pix text-cyan-400 text-2xl"></i>
+                                    <span class="font-bold text-lg">Pix</span>
                                 </div>
                             </label>
                             <label class="cursor-pointer">
                                 <input type="radio" name="pagamento" value="boleto" class="hidden peer">
-                                <div class="p-4 border border-slate-700 rounded-xl flex items-center justify-center space-x-2 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition">
-                                    <i class="fas fa-barcode"></i>
-                                    <span>Boleto</span>
+                                <div class="p-5 border-2 border-slate-700 rounded-2xl flex items-center justify-center space-x-3 peer-checked:border-blue-500 peer-checked:bg-blue-500/10 transition-all hover:bg-slate-800">
+                                    <i class="fas fa-barcode text-2xl"></i>
+                                    <span class="font-bold text-lg">Boleto</span>
                                 </div>
                             </label>
                         </div>
                     </div>
-                    <div class="pt-6">
-                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition">
-                            Confirmar e Enviar via WhatsApp
+                    <div class="pt-10">
+                        <button type="submit" class="w-full bg-green-600 hover:bg-green-700 text-white font-black py-6 rounded-2xl transition-all text-2xl uppercase shadow-lg shadow-green-900/20">
+                            Confirmar Pedido via WhatsApp
                         </button>
                     </div>
                 </form>
@@ -279,17 +312,13 @@
     </div>
 
     <!-- Mensagem de Sucesso -->
-    <div id="success-message" class="fixed top-5 left-1/2 -translate-x-1/2 bg-green-500 text-white px-8 py-4 rounded-full shadow-2xl z-[100] transform -translate-y-24 transition-transform duration-500">
-        <i class="fas fa-check-circle mr-2"></i> A redirecionar para o WhatsApp...
+    <div id="success-message" class="fixed top-8 left-1/2 -translate-x-1/2 bg-green-500 text-white px-10 py-5 rounded-full shadow-2xl z-[100] transform -translate-y-40 transition-transform duration-500 font-bold text-lg">
+        <i class="fas fa-check-circle mr-3"></i> A redirecionar para o WhatsApp...
     </div>
 
     <script>
         const WHATSAPP_NUMBER = "5521990819172"; 
 
-        /**
-         * Para adicionar mais imagens a qualquer item, basta inserir o nome do arquivo no array 'images'.
-         * Exemplo: images: ["img/foto1.jpg", "img/foto2.jpg", "img/foto3.jpg"]
-         */
         const products = [
             { id: 1, name: "Escultura Dragon", price: 185.00, category: "Arte", images: ["img/dragon.jpg", "img/dragon_v2.jpg", "img/dragon_v3.jpg"] },
             { id: 2, name: "Organizador Hexa", price: 45.90, category: "Utilitário", images: ["img/organizador.jpg", "img/organizador2.jpg"] },
@@ -313,12 +342,12 @@
                 const hasMultiple = product.images.length > 1;
 
                 return `
-                <div class="product-card bg-slate-800/50 border border-slate-700 rounded-2xl overflow-hidden flex flex-col">
-                    <div class="carousel-container bg-slate-900">
+                <div class="product-card bg-slate-800/40 border border-slate-700/50 rounded-3xl overflow-hidden flex flex-col backdrop-blur-sm">
+                    <div class="carousel-container bg-slate-950">
                         <div class="carousel-track" id="track-${product.id}">
                             ${product.images.map(img => `
                                 <div class="carousel-item">
-                                    <img src="${img}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/400x400?text=Adicione+Foto+na+Pasta+Img'">
+                                    <img src="${img}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/600x600?text=Sem+Imagem'">
                                 </div>
                             `).join('')}
                         </div>
@@ -335,17 +364,17 @@
                             </div>
                         ` : ''}
 
-                        <span class="absolute top-3 left-3 z-20 bg-blue-600/20 backdrop-blur-md text-blue-400 text-xs font-bold px-3 py-1 rounded-full border border-blue-500/30">
+                        <span class="absolute top-4 left-4 z-20 bg-blue-600 text-white text-[10px] font-black uppercase tracking-widest px-4 py-1.5 rounded-full shadow-lg shadow-blue-900/40">
                             ${product.category}
                         </span>
                     </div>
 
-                    <div class="p-6 flex flex-col flex-1">
-                        <h3 class="text-xl font-bold mb-2">${product.name}</h3>
-                        <div class="mt-auto flex justify-between items-center">
-                            <span class="text-blue-400 font-mono text-lg font-bold">R$ ${product.price.toFixed(2)}</span>
-                            <button onclick="addToCart(${product.id})" class="bg-blue-600 hover:bg-blue-500 text-white p-2 rounded-lg transition active:scale-95">
-                                <i class="fas fa-cart-plus"></i>
+                    <div class="p-8 flex flex-col flex-1">
+                        <h3 class="text-2xl font-black mb-3 tracking-tight">${product.name}</h3>
+                        <div class="mt-auto flex justify-between items-center pt-6">
+                            <span class="text-blue-400 font-mono text-2xl font-black italic tracking-tighter">R$ ${product.price.toFixed(2)}</span>
+                            <button onclick="addToCart(${product.id})" class="bg-blue-600 hover:bg-blue-500 text-white w-14 h-14 rounded-2xl flex items-center justify-center transition active:scale-90 shadow-lg shadow-blue-900/30">
+                                <i class="fas fa-plus text-xl"></i>
                             </button>
                         </div>
                     </div>
@@ -387,6 +416,9 @@
                 cart.push({ ...product, quantity: 1 });
             }
             updateCart();
+            // Abrir carrinho ao adicionar
+            const drawer = document.getElementById('cart-drawer');
+            if (drawer.classList.contains('translate-x-full')) toggleCart();
         }
 
         function removeFromCart(productId) {
@@ -413,18 +445,18 @@
                 countEl.innerText = cart.reduce((acc, item) => acc + item.quantity, 0);
 
                 listContainer.innerHTML = cart.map(item => `
-                    <div class="flex items-center justify-between bg-slate-800/50 p-4 rounded-xl border border-slate-700 animate-fade-in">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
-                                <img src="${item.images[0]}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/100x100'">
+                    <div class="flex items-center justify-between bg-slate-800/40 p-5 rounded-2xl border border-slate-700/50 animate-fade-in">
+                        <div class="flex items-center space-x-5">
+                            <div class="w-16 h-16 rounded-xl overflow-hidden flex-shrink-0 border border-slate-700">
+                                <img src="${item.images[0]}" class="w-full h-full object-cover" onerror="this.src='https://via.placeholder.com/150x150'">
                             </div>
                             <div>
-                                <h4 class="font-bold text-sm">${item.name}</h4>
-                                <p class="text-xs text-slate-400">${item.quantity}x R$ ${item.price.toFixed(2)}</p>
+                                <h4 class="font-black text-lg leading-tight">${item.name}</h4>
+                                <p class="text-blue-400 font-mono font-bold">${item.quantity}x R$ ${item.price.toFixed(2)}</p>
                             </div>
                         </div>
-                        <button onclick="removeFromCart(${item.id})" class="text-slate-500 hover:text-red-400 transition-colors">
-                            <i class="fas fa-trash-alt"></i>
+                        <button onclick="removeFromCart(${item.id})" class="text-slate-600 hover:text-red-500 transition-colors p-2">
+                            <i class="fas fa-trash-alt text-xl"></i>
                         </button>
                     </div>
                 `).join('');
@@ -454,8 +486,8 @@
 
             let message = `🚀 *NOVA ENCOMENDA CROWLAB3D*\n\n`;
             message += `👤 *Cliente:* ${cliente.nome}\n`;
-            message += `🆔 *CPF:* ${cliente.cpf}\n`;
-            message += `📍 *Endereço:* ${cliente.endereco}\n`;
+            message += `🆔 *Identificação:* ${cliente.cpf}\n`;
+            message += `📍 *Morada:* ${cliente.endereco}\n`;
             message += `💳 *Pagamento:* ${cliente.pagamento.toUpperCase()}\n\n`;
             message += `📦 *Produtos:*\n`;
             cart.forEach(item => {
@@ -463,16 +495,16 @@
             });
             message += `\n💰 *VALOR TOTAL: R$ ${total.toFixed(2)}*`;
 
-            document.getElementById('success-message').classList.remove('-translate-y-24');
+            document.getElementById('success-message').classList.remove('-translate-y-40');
 
             setTimeout(() => {
                 window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, '_blank');
                 hideCheckout();
-                document.getElementById('success-message').classList.add('-translate-y-24');
+                document.getElementById('success-message').classList.add('-translate-y-40');
                 cart = [];
                 updateCart();
                 e.target.reset();
-            }, 1000);
+            }, 1200);
         }
 
         document.addEventListener('DOMContentLoaded', () => {
