@@ -19,7 +19,13 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            cursor: crosshair;
+            /* Cursor alterado para o padrão (default) */
+            cursor: default;
+        }
+
+        /* Garantir que elementos clicáveis mostrem a "mãozinha" */
+        a, button, [onclick], .payment-option, .dot {
+            cursor: pointer;
         }
 
         body {
@@ -79,7 +85,7 @@
         .carousel-container {
             position: relative;
             width: 100%;
-            aspect-ratio: 1/1; /* Quadrado para melhor exibição de objetos 3D */
+            aspect-ratio: 1/1;
             overflow: hidden;
             background: #000;
         }
@@ -213,7 +219,6 @@
             border: 1px solid rgba(255,255,255,0.1);
             padding: 1rem;
             text-align: center;
-            cursor: pointer;
             transition: 0.3s;
             background: rgba(255,255,255,0.03);
             border-radius: 4px;
@@ -277,7 +282,6 @@
 
     <div class="bg-grid"></div>
 
-    <!-- Botões Flutuantes Redes Sociais -->
     <div class="social-float">
         <a href="https://instagram.com/crowlab3d" target="_blank" class="float-btn btn-ig">
             <i class="fab fa-instagram"></i>
@@ -287,7 +291,6 @@
         </a>
     </div>
 
-    <!-- Navegação -->
     <nav class="fixed top-0 left-0 w-full z-[100] border-b border-white/5 bg-black/90 backdrop-blur-md">
         <div class="main-container flex justify-between items-center h-20">
             <div class="flex items-center space-x-6">
@@ -313,7 +316,6 @@
         </div>
     </nav>
 
-    <!-- Hero -->
     <section class="viewport-section pt-32">
         <div class="main-container text-center">
             <div class="mb-16">
@@ -348,7 +350,6 @@
         </div>
     </section>
 
-    <!-- Filtros -->
     <div class="sticky top-20 z-50 bg-black/95 border-y border-white/5">
         <div class="main-container">
             <div class="flex overflow-x-auto no-scrollbar">
@@ -361,14 +362,12 @@
         </div>
     </div>
 
-    <!-- Arsenal -->
     <section class="py-12">
         <div class="main-container">
             <div id="arsenal-grid"></div>
         </div>
     </section>
 
-    <!-- Rodapé -->
     <footer class="bg-black border-t border-white/5 py-20">
         <div class="main-container text-center">
             <h2 class="text-4xl font-black italic font-sync uppercase mb-6">CROWLAB<span class="text-blue-600">3D</span></h2>
@@ -388,7 +387,6 @@
         </div>
     </footer>
 
-    <!-- Painel Lateral -->
     <div id="cart-panel" class="fixed top-0 right-[-100%] w-full max-w-[500px] h-screen bg-zinc-950 z-[2000] transition-all duration-500 border-l border-white/10 flex flex-col">
         <div class="p-8 border-b border-white/10 flex justify-between items-center bg-black">
             <h2 id="panel-title" class="text-xl font-bold font-sync italic">CARRINHO</h2>
@@ -435,7 +433,6 @@
     <script>
         const WHATSAPP_NUMBER = "5521990819172";
 
-        // OBJECTO DE DADOS: Agora adicionei 2 imagens a mais itens para veres os carrosséis.
         const arsenalData = [
             { 
                 id: 201, 
@@ -505,7 +502,6 @@
             const data = filter === 'Todos' ? arsenalData : arsenalData.filter(p => p.cat === filter);
             
             grid.innerHTML = data.map(p => {
-                // Iniciar posição se não existir
                 if (carouselPositions[p.id] === undefined) carouselPositions[p.id] = 0;
 
                 return `
@@ -543,15 +539,9 @@
         function moveCarousel(id, direction) {
             const prod = arsenalData.find(p => p.id === id);
             const total = prod.imgs.length;
-            
-            // Atualizar posição
             carouselPositions[id] = (carouselPositions[id] + direction + total) % total;
-            
-            // Atualizar Track
             const track = document.querySelector(`#carousel-${id} .carousel-track`);
             if (track) track.style.transform = `translateX(-${carouselPositions[id] * 100}%)`;
-
-            // Atualizar Dots
             const dots = document.querySelectorAll(`#carousel-${id} .dot`);
             dots.forEach((dot, idx) => {
                 dot.classList.toggle('active', idx === carouselPositions[id]);
