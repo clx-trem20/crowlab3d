@@ -1,4 +1,3 @@
-<!DOCTYPE html>
 <html lang="pt-br" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -145,7 +144,7 @@
                     </div>
                     <span class="text-2xl font-black italic font-sync">CROWLAB<span class="text-blue-600">3D</span></span>
                 </div>
-                <div id="connection-info" class="ml-16 font-mono">Syncing...</div>
+                <div id="connection-info" class="ml-16 font-mono text-green-500 uppercase tracking-tighter">Conectado ao Arsenal</div>
             </div>
             <button onclick="toggleCart()" class="relative flex items-center">
                 <div id="cart-total-top" class="text-sm font-bold italic font-sync mr-4 hidden sm:block">R$ 0,00</div>
@@ -182,7 +181,13 @@
     <!-- Grid de Produtos -->
     <section class="py-12" id="arsenal">
         <div class="main-container">
-            <div id="arsenal-grid"></div>
+            <div id="arsenal-grid">
+                <!-- Produtos sincronizados via Firebase aparecerão aqui -->
+                <div class="col-span-full text-center py-20">
+                    <div class="inline-block w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-[10px] uppercase font-sync mt-4 text-slate-500">Sincronizando Arsenal...</p>
+                </div>
+            </div>
         </div>
     </section>
 
@@ -271,7 +276,6 @@
             </button>
         </div>
 
-        <!-- Vista: Lista do Carrinho -->
         <div id="view-cart" class="flex-1 flex flex-col overflow-hidden">
             <div id="cart-items" class="flex-1 overflow-y-auto p-8 space-y-6"></div>
             <div class="p-8 border-t border-white/10 bg-black">
@@ -283,7 +287,6 @@
             </div>
         </div>
 
-        <!-- Vista: Checkout -->
         <div id="view-checkout" class="flex-1 flex flex-col overflow-hidden hidden">
             <div class="flex-1 overflow-y-auto p-8 space-y-6">
                 <div>
@@ -333,17 +336,24 @@
 
     <!-- Firebase Logic -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+        import { getFirestore, collection, onSnapshot, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
 
-        // CONFIGURAÇÕES GLOBAIS
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'crowlab3d-production';
+        // CONFIGURAÇÃO IGUAL AO ADMIN PANEL
+        const firebaseConfig = {
+            apiKey: "AIzaSyAlJuJGDfkccfind-bOdweBEb9G0Pe5ssg",
+            authDomain: "loja-de-produtos-3d.firebaseapp.com",
+            projectId: "loja-de-produtos-3d",
+            storageBucket: "loja-de-produtos-3d.firebasestorage.app",
+            messagingSenderId: "245685423208",
+            appId: "1:245685423208:web:f136124fc0fc889f667fdd"
+        };
+
+        const appId = 'crowlab-prod';
         const WHATSAPP_NUMBER = "5521990819172";
         const ORIGIN_CEP = "26600000";
 
-        // INICIALIZAÇÃO FIREBASE
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getFirestore(app);
@@ -353,45 +363,58 @@
         let cart = [];
         let selectedPayment = '';
         let shippingValue = 0;
+        let allProducts = []; // Armazena os produtos do Firebase
         let productSlides = {}; 
 
-        const arsenalData = [
-            { id: 1, name: "Escultura Dragon Zero", price: 245.00, cat: "Colecionável", images: ["img/dragon1.jpg", "img/dragon2.jpg"] },
-            { id: 2, name: "Vertical GPU Mount", price: 129.90, cat: "Setup Gaming", images: ["img/gpu1.jpg", "img/gpu2.jpg"] },
-            { id: 3, name: "Node Light Hex", price: 185.00, cat: "Decoração", images: ["img/node1.jpg", "img/node2.jpg"] },
-            { id: 4, name: "Carenagem Industrial", price: 340.00, cat: "Técnico", images: ["img/tec1.jpg", "img/tec2.jpg"] }
-        ];
-
-        // 1. AUTENTICAÇÃO (REGRA 3)
-        async function initAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Auth Error:", error);
-                document.getElementById('connection-info').textContent = "Offline Mode";
-            }
-        }
-
+        // 1. AUTENTICAÇÃO ANÔNIMA PARA O CLIENTE
         onAuthStateChanged(auth, (u) => {
             user = u;
-            if (user) {
-                document.getElementById('connection-info').textContent = `Encrypted Session: ${user.uid.substring(0,8)}...`;
+            if (!user) {
+                signInAnonymously(auth);
+            } else {
+                startProductSync();
             }
         });
 
-        // FUNCIONALIDADES DO ARSENAL
+        // 2. SINCRONIZAÇÃO EM TEMPO REAL COM O FIREBASE
+        function startProductSync() {
+            const productsCol = collection(db, 'artifacts', appId, 'public', 'data', 'products');
+            
+            onSnapshot(productsCol, (snapshot) => {
+                allProducts = [];
+                snapshot.forEach(docSnap => {
+                    allProducts.push({ id: docSnap.id, ...docSnap.data() });
+                });
+                
+                // Ordenar por data de criação (mais novos primeiro)
+                allProducts.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+                
+                renderArsenal(); // Renderiza com os novos dados
+            }, (error) => {
+                console.error("Erro Firebase:", error);
+                document.getElementById('arsenal-grid').innerHTML = `<p class="col-span-full text-center text-red-500 uppercase font-sync text-xs">Erro de conexão com o Arsenal.</p>`;
+            });
+        }
+
+        // 3. RENDERIZAÇÃO DO ARSENAL
         window.renderArsenal = function(filter = 'Todos') {
             const grid = document.getElementById('arsenal-grid');
-            const data = filter === 'Todos' ? arsenalData : arsenalData.filter(p => p.cat === filter);
+            const data = filter === 'Todos' ? allProducts : allProducts.filter(p => p.cat === filter);
             
+            if (data.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-20 border-2 border-dashed border-white/5 rounded-2xl text-slate-600 italic text-sm uppercase tracking-widest">Nenhum item disponível nesta categoria.</div>`;
+                return;
+            }
+
             grid.innerHTML = data.map(p => {
                 if(productSlides[p.id] === undefined) productSlides[p.id] = 0;
-                const slidesHtml = p.images.map(img => `<div class="carousel-slide"><img src="${img}" onerror="this.src='https://placehold.co/600x600/111/333?text=Imagem+Nao+Encontrada'" class="w-full"></div>`).join('');
-                const dotsHtml = p.images.map((_, idx) => `<div class="dot ${idx === productSlides[p.id] ? 'active' : ''}" onclick="moveSlide(${p.id}, ${idx})"></div>`).join('');
+                
+                const images = p.images || [];
+                const slidesHtml = images.length > 0 
+                    ? images.map(img => `<div class="carousel-slide"><img src="${img}" onerror="this.src='https://placehold.co/600x600/111/333?text=Imagem+Nao+Encontrada'" class="w-full"></div>`).join('')
+                    : `<div class="carousel-slide"><img src="https://placehold.co/600x600/111/333?text=Sem+Imagem" class="w-full"></div>`;
+                
+                const dotsHtml = images.map((_, idx) => `<div class="dot ${idx === productSlides[p.id] ? 'active' : ''}" onclick="moveSlide('${p.id}', ${idx})"></div>`).join('');
 
                 return `
                 <div class="complex-card group border border-white/10 bg-zinc-900/20 rounded-xl overflow-hidden hover:border-blue-500/50 transition-all">
@@ -399,16 +422,18 @@
                         <div class="carousel-track" style="transform: translateX(-${productSlides[p.id] * 100}%)">
                             ${slidesHtml}
                         </div>
-                        <button class="carousel-btn btn-prev" onclick="prevSlide(${p.id})"><i class="fas fa-chevron-left"></i></button>
-                        <button class="carousel-btn btn-next" onclick="nextSlide(${p.id})"><i class="fas fa-chevron-right"></i></button>
-                        <div class="carousel-dots">${dotsHtml}</div>
+                        ${images.length > 1 ? `
+                            <button class="carousel-btn btn-prev" onclick="prevSlide('${p.id}')"><i class="fas fa-chevron-left"></i></button>
+                            <button class="carousel-btn btn-next" onclick="nextSlide('${p.id}')"><i class="fas fa-chevron-right"></i></button>
+                            <div class="carousel-dots">${dotsHtml}</div>
+                        ` : ''}
                     </div>
                     <div class="p-6">
-                        <div class="text-blue-500 text-[9px] font-bold uppercase italic font-sync">${p.cat}</div>
-                        <h3 class="text-lg font-bold uppercase italic font-sync mb-4 h-12">${p.name}</h3>
+                        <div class="text-blue-500 text-[9px] font-bold uppercase italic font-sync">${p.cat || 'Geral'}</div>
+                        <h3 class="text-lg font-bold uppercase italic font-sync mb-4 h-12 truncate">${p.name}</h3>
                         <div class="flex justify-between items-center">
-                            <span class="text-xl font-black italic font-sync">R$ ${p.price.toFixed(2)}</span>
-                            <button onclick="addToCart(${p.id})" class="w-10 h-10 bg-blue-600 flex items-center justify-center hover:bg-white hover:text-blue-600 transition-all rounded"><i class="fas fa-plus"></i></button>
+                            <span class="text-xl font-black italic font-sync">R$ ${parseFloat(p.price).toFixed(2)}</span>
+                            <button onclick="addToCart('${p.id}')" class="w-10 h-10 bg-blue-600 flex items-center justify-center hover:bg-white hover:text-blue-600 transition-all rounded"><i class="fas fa-plus"></i></button>
                         </div>
                     </div>
                 </div>
@@ -417,7 +442,7 @@
         };
 
         window.moveSlide = function(prodId, index) {
-            const product = arsenalData.find(p => p.id === prodId);
+            const product = allProducts.find(p => p.id === prodId);
             if (!product) return;
             productSlides[prodId] = index;
             const track = document.querySelector(`#carousel-${prodId} .carousel-track`);
@@ -427,19 +452,19 @@
         };
 
         window.nextSlide = function(prodId) {
-            const product = arsenalData.find(p => p.id === prodId);
+            const product = allProducts.find(p => p.id === prodId);
             let nextIndex = (productSlides[prodId] + 1) % product.images.length;
             moveSlide(prodId, nextIndex);
         };
 
         window.prevSlide = function(prodId) {
-            const product = arsenalData.find(p => p.id === prodId);
+            const product = allProducts.find(p => p.id === prodId);
             let prevIndex = (productSlides[prodId] - 1 + product.images.length) % product.images.length;
             moveSlide(prodId, prevIndex);
         };
 
         window.addToCart = function(id) {
-            const prod = arsenalData.find(p => p.id === id);
+            const prod = allProducts.find(p => p.id === id);
             const item = cart.find(i => i.id === id);
             if(item) item.qty++;
             else cart.push({...prod, qty: 1});
@@ -467,17 +492,17 @@
             list.innerHTML = cart.length ? cart.map(i => `
                 <div class="flex gap-4 items-center bg-white/5 p-4 border border-white/5 rounded">
                     <div class="flex-1">
-                        <h4 class="text-[10px] font-bold uppercase font-sync">${i.name}</h4>
-                        <div class="text-blue-500 text-xs font-bold mt-1">R$ ${i.price.toFixed(2)} [x${i.qty}]</div>
+                        <h4 class="text-[10px] font-bold uppercase font-sync truncate">${i.name}</h4>
+                        <div class="text-blue-500 text-xs font-bold mt-1">R$ ${parseFloat(i.price).toFixed(2)} [x${i.qty}]</div>
                     </div>
-                    <button onclick="removeFromCart(${i.id})" class="text-slate-500 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                    <button onclick="removeFromCart('${i.id}')" class="text-slate-500 hover:text-red-500"><i class="fas fa-trash"></i></button>
                 </div>
             `).join('') : `<div class="text-center py-10 text-slate-600 text-[10px] font-sync uppercase">Carrinho Vazio</div>`;
         }
 
         window.toggleCart = function() {
             const p = document.getElementById('cart-panel');
-            p.style.right = p.style.right === '0px' ? '-100%' : '0px';
+            p.style.right = (p.style.right === '0px' || p.style.right === '0%') ? '-100%' : '0px';
         };
 
         window.applyFilter = function(cat, btn) {
@@ -486,7 +511,6 @@
             renderArsenal(cat);
         };
 
-        // CHECKOUT LOGIC
         window.onlyNumbers = function(input) {
             input.value = input.value.replace(/\D/g, '');
         };
@@ -497,49 +521,24 @@
             const streetInput = document.getElementById('user-street');
             const neighborhoodInput = document.getElementById('user-neighborhood');
             const shippingArea = document.getElementById('shipping-area');
-            
             cityInput.value = "Buscando...";
-
             try {
                 const res = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
                 const data = await res.json();
-                
-                if (data.erro) {
-                    alertBox("CEP não encontrado.");
-                    cityInput.value = "";
-                    shippingArea.classList.add('hidden');
-                    return;
-                }
-                
+                if (data.erro) { alertBox("CEP não encontrado."); cityInput.value = ""; return; }
                 streetInput.value = data.logradouro || '';
                 neighborhoodInput.value = data.bairro || '';
                 cityInput.value = `${data.localidade} / ${data.uf}`;
-                
                 calculateRealShipping(cep, data.uf);
                 shippingArea.classList.remove('hidden');
-            } catch (err) {
-                alertBox("Erro ao buscar CEP.");
-                cityInput.value = "";
-            }
+            } catch (err) { alertBox("Erro ao buscar CEP."); }
         };
 
         function calculateRealShipping(cep, uf) {
-            let price = 0;
-            if (cep === ORIGIN_CEP) {
-                price = 0; 
-            } else {
-                switch(uf) {
-                    case 'RJ': price = 18.50; break;
-                    case 'SP': case 'MG': case 'ES': price = 28.90; break;
-                    case 'PR': case 'SC': case 'RS': case 'DF': case 'GO': price = 42.00; break;
-                    default: price = 58.00;
-                }
-            }
+            let price = (cep === ORIGIN_CEP) ? 0 : (uf === 'RJ' ? 18.50 : (['SP','MG','ES'].includes(uf) ? 28.90 : 45.00));
             shippingValue = price;
             const badge = document.getElementById('shipping-value');
-            if (badge) {
-                badge.innerText = price === 0 ? "GRÁTIS (RETIRADA)" : `R$ ${price.toFixed(2)}`;
-            }
+            if (badge) badge.innerText = price === 0 ? "GRÁTIS (RETIRADA)" : `R$ ${price.toFixed(2)}`;
             updateCartUI();
         }
 
@@ -549,74 +548,29 @@
             document.getElementById(`pay-${mode.toLowerCase()}`).classList.add('selected');
         };
 
-        // FINALIZAÇÃO COM FIREBASE (REGRA 1)
         window.processOrder = async function() {
-            if (!user) {
-                alertBox("Sessão não autenticada. Aguarde...");
-                return;
-            }
-
+            if (!user) return;
             const f = (id) => document.getElementById(id).value.trim();
-            const customerData = {
-                name: f('user-name'), cpf: f('user-cpf'), cep: f('user-cep'),
-                rua: f('user-street'), num: f('user-num'), bairro: f('user-neighborhood'),
-                cidade: f('user-city'), comp: f('user-complement')
-            };
+            const customerData = { name: f('user-name'), cpf: f('user-cpf'), cep: f('user-cep'), rua: f('user-street'), num: f('user-num'), bairro: f('user-neighborhood'), cidade: f('user-city'), comp: f('user-complement') };
+            if(!customerData.name || !customerData.cpf || !customerData.cep || !customerData.rua || !customerData.num || !selectedPayment) { alertBox("Preencha todos os campos."); return; }
 
-            if(!customerData.name || !customerData.cpf || !customerData.cep || !customerData.rua || !customerData.num || !customerData.cidade || !selectedPayment) {
-                alertBox("Preencha todos os campos obrigatórios.");
-                return;
-            }
-
-            // Gravar no Firestore primeiro (Caminho Público conforme Regra 1)
             try {
                 const ordersRef = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
-                const orderPayload = {
-                    customer: customerData,
-                    items: cart,
-                    payment: selectedPayment,
-                    shipping: shippingValue,
-                    total: cart.reduce((a, b) => a + (b.price * b.qty), 0) + shippingValue,
-                    createdAt: serverTimestamp(),
-                    status: 'PENDENTE',
-                    uid: user.uid
-                };
-
-                await addDoc(ordersRef, orderPayload);
+                const total = cart.reduce((a, b) => a + (b.price * b.qty), 0) + shippingValue;
+                await addDoc(ordersRef, { customer: customerData, items: cart, payment: selectedPayment, shipping: shippingValue, total, createdAt: serverTimestamp(), status: 'PENDENTE', uid: user.uid });
                 
-                // Preparar texto para o WhatsApp
-                let text = `🛸 *NOVO PEDIDO CROWLAB3D*\n\n`;
-                text += `👤 *CLIENTE:* ${customerData.name}\n`;
-                text += `📄 *CPF:* ${customerData.cpf}\n\n`;
-                text += `📍 *ENDEREÇO:* ${customerData.rua}, ${customerData.num}\n`;
-                if(customerData.comp) text += `🔹 *COMP:* ${customerData.comp}\n`;
-                text += `🔹 *BAIRRO:* ${customerData.bairro}\n`;
-                text += `🔹 *CIDADE:* ${customerData.cidade}\n`;
-                text += `🔹 *CEP:* ${customerData.cep}\n\n`;
-                text += `💳 *PAGAMENTO:* ${selectedPayment}\n\n`;
-                text += `📦 *ITENS:*\n`;
-                cart.forEach(i => text += `• ${i.name} (${i.qty}x) - R$ ${(i.qty*i.price).toFixed(2)}\n`);
-                text += `\n🚚 *FRETE:* R$ ${shippingValue.toFixed(2)}`;
-                text += `\n💰 *TOTAL: R$ ${orderPayload.total.toFixed(2)}*`;
-                
+                let text = `🛸 *NOVO PEDIDO CROWLAB3D*\n\n👤 *CLIENTE:* ${customerData.name}\n📍 *ENDEREÇO:* ${customerData.rua}, ${customerData.num}\n💳 *PAGAMENTO:* ${selectedPayment}\n📦 *ITENS:*\n`;
+                cart.forEach(i => text += `• ${i.name} (${i.qty}x)\n`);
+                text += `\n💰 *TOTAL: R$ ${total.toFixed(2)}*`;
                 window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`);
-            } catch (error) {
-                console.error("Firestore Save Error:", error);
-                alertBox("Erro ao registrar pedido no sistema. Tente novamente.");
-            }
+            } catch (error) { alertBox("Erro ao registrar pedido."); }
         };
 
-        // UI HELPERS
         window.toggleFaq = function(btn) {
             const content = btn.nextElementSibling;
-            const icon = btn.querySelector('i');
             const isOpen = content.style.maxHeight;
             document.querySelectorAll('.faq-content').forEach(c => c.style.maxHeight = null);
-            document.querySelectorAll('.faq-trigger i').forEach(i => i.className = "fas fa-plus text-[10px] text-blue-600");
-            if (!isOpen) {
-                content.style.maxHeight = content.scrollHeight + "px";
-                icon.className = "fas fa-minus text-[10px] text-blue-600";
-            }
+            if (!isOpen) content.style.maxHeight = content.scrollHeight + "px";
         };
 
         window.goToCheckout = function() {
@@ -633,21 +587,13 @@
 
         window.alertBox = function(m) {
             const b = document.createElement('div');
-            b.className = "fixed bottom-5 left-5 right-5 bg-red-600 text-white p-4 z-[5000] text-[10px] font-bold uppercase tracking-widest text-center rounded shadow-2xl";
+            b.className = "fixed bottom-5 left-5 right-5 bg-red-600 text-white p-4 z-[5000] text-[10px] font-bold uppercase tracking-widest text-center rounded";
             b.innerText = m;
             document.body.appendChild(b);
             setTimeout(() => b.remove(), 4000);
         };
 
-        window.customOrder = function() {
-            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Gostaria de um orçamento personalizado.`);
-        };
-
-        // INIT
-        document.addEventListener('DOMContentLoaded', () => {
-            initAuth();
-            renderArsenal();
-        });
+        window.customOrder = function() { window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Gostaria de um orçamento personalizado.`); };
     </script>
 </body>
 </html>
