@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="pt-br" class="scroll-smooth">
 <head>
     <meta charset="UTF-8">
@@ -116,6 +117,8 @@
         .faq-item { border-bottom: 1px solid rgba(255,255,255,0.05); }
         .faq-trigger { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: 2rem 0; text-align: left; }
         .faq-content { max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; color: #94a3b8; font-size: 0.9rem; line-height: 1.6; }
+        
+        #connection-info { font-size: 10px; color: #3b82f6; opacity: 0.6; }
     </style>
 </head>
 <body>
@@ -135,11 +138,14 @@
     <!-- Navegação -->
     <nav class="fixed top-0 left-0 w-full z-[100] border-b border-white/5 bg-black/90 backdrop-blur-md">
         <div class="main-container flex justify-between items-center h-20">
-            <div class="flex items-center space-x-6">
-                <div class="w-10 h-10 border border-blue-500/50 flex items-center justify-center rotate-45 bg-blue-600/5">
-                    <i class="fas fa-microchip -rotate-45 text-blue-500 text-lg"></i>
+            <div class="flex flex-col">
+                <div class="flex items-center space-x-6">
+                    <div class="w-10 h-10 border border-blue-500/50 flex items-center justify-center rotate-45 bg-blue-600/5">
+                        <i class="fas fa-microchip -rotate-45 text-blue-500 text-lg"></i>
+                    </div>
+                    <span class="text-2xl font-black italic font-sync">CROWLAB<span class="text-blue-600">3D</span></span>
                 </div>
-                <span class="text-2xl font-black italic font-sync">CROWLAB<span class="text-blue-600">3D</span></span>
+                <div id="connection-info" class="ml-16 font-mono">Syncing...</div>
             </div>
             <button onclick="toggleCart()" class="relative flex items-center">
                 <div id="cart-total-top" class="text-sm font-bold italic font-sync mr-4 hidden sm:block">R$ 0,00</div>
@@ -325,9 +331,29 @@
         </div>
     </div>
 
-    <script>
+    <!-- Firebase Logic -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, addDoc, collection, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // CONFIGURAÇÕES GLOBAIS
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'crowlab3d-production';
         const WHATSAPP_NUMBER = "5521990819172";
         const ORIGIN_CEP = "26600000";
+
+        // INICIALIZAÇÃO FIREBASE
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+
+        // ESTADO GLOBAL
+        let user = null;
+        let cart = [];
+        let selectedPayment = '';
+        let shippingValue = 0;
+        let productSlides = {}; 
 
         const arsenalData = [
             { id: 1, name: "Escultura Dragon Zero", price: 245.00, cat: "Colecionável", images: ["img/dragon1.jpg", "img/dragon2.jpg"] },
@@ -336,12 +362,29 @@
             { id: 4, name: "Carenagem Industrial", price: 340.00, cat: "Técnico", images: ["img/tec1.jpg", "img/tec2.jpg"] }
         ];
 
-        let cart = [];
-        let selectedPayment = '';
-        let shippingValue = 0;
-        let productSlides = {}; 
+        // 1. AUTENTICAÇÃO (REGRA 3)
+        async function initAuth() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (error) {
+                console.error("Auth Error:", error);
+                document.getElementById('connection-info').textContent = "Offline Mode";
+            }
+        }
 
-        function renderArsenal(filter = 'Todos') {
+        onAuthStateChanged(auth, (u) => {
+            user = u;
+            if (user) {
+                document.getElementById('connection-info').textContent = `Encrypted Session: ${user.uid.substring(0,8)}...`;
+            }
+        });
+
+        // FUNCIONALIDADES DO ARSENAL
+        window.renderArsenal = function(filter = 'Todos') {
             const grid = document.getElementById('arsenal-grid');
             const data = filter === 'Todos' ? arsenalData : arsenalData.filter(p => p.cat === filter);
             
@@ -371,7 +414,7 @@
                 </div>
                 `;
             }).join('');
-        }
+        };
 
         window.moveSlide = function(prodId, index) {
             const product = arsenalData.find(p => p.id === prodId);
@@ -379,7 +422,7 @@
             productSlides[prodId] = index;
             const track = document.querySelector(`#carousel-${prodId} .carousel-track`);
             const dots = document.querySelectorAll(`#carousel-${prodId} .dot`);
-            track.style.transform = `translateX(-${index * 100}%)`;
+            if(track) track.style.transform = `translateX(-${index * 100}%)`;
             dots.forEach((d, i) => d.classList.toggle('active', i === index));
         };
 
@@ -395,11 +438,60 @@
             moveSlide(prodId, prevIndex);
         };
 
-        function onlyNumbers(input) {
-            input.value = input.value.replace(/\D/g, '');
+        window.addToCart = function(id) {
+            const prod = arsenalData.find(p => p.id === id);
+            const item = cart.find(i => i.id === id);
+            if(item) item.qty++;
+            else cart.push({...prod, qty: 1});
+            updateCartUI();
+        };
+
+        window.removeFromCart = function(id) {
+            cart = cart.filter(i => i.id !== id);
+            updateCartUI();
+        };
+
+        function updateCartUI() {
+            const subtotal = cart.reduce((a, b) => a + (b.price * b.qty), 0);
+            const total = subtotal + shippingValue;
+            
+            const badge = document.getElementById('cart-badge');
+            badge.innerText = cart.reduce((a,b) => a+b.qty, 0);
+            badge.classList.toggle('hidden', cart.length === 0);
+            
+            document.getElementById('cart-total-top').innerText = `R$ ${total.toFixed(2)}`;
+            document.getElementById('cart-grand-total').innerText = `R$ ${total.toFixed(2)}`;
+            document.getElementById('btn-next-step').disabled = cart.length === 0;
+
+            const list = document.getElementById('cart-items');
+            list.innerHTML = cart.length ? cart.map(i => `
+                <div class="flex gap-4 items-center bg-white/5 p-4 border border-white/5 rounded">
+                    <div class="flex-1">
+                        <h4 class="text-[10px] font-bold uppercase font-sync">${i.name}</h4>
+                        <div class="text-blue-500 text-xs font-bold mt-1">R$ ${i.price.toFixed(2)} [x${i.qty}]</div>
+                    </div>
+                    <button onclick="removeFromCart(${i.id})" class="text-slate-500 hover:text-red-500"><i class="fas fa-trash"></i></button>
+                </div>
+            `).join('') : `<div class="text-center py-10 text-slate-600 text-[10px] font-sync uppercase">Carrinho Vazio</div>`;
         }
 
-        async function fetchAddress(cep) {
+        window.toggleCart = function() {
+            const p = document.getElementById('cart-panel');
+            p.style.right = p.style.right === '0px' ? '-100%' : '0px';
+        };
+
+        window.applyFilter = function(cat, btn) {
+            document.querySelectorAll('.filter-item').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            renderArsenal(cat);
+        };
+
+        // CHECKOUT LOGIC
+        window.onlyNumbers = function(input) {
+            input.value = input.value.replace(/\D/g, '');
+        };
+
+        window.fetchAddress = async function(cep) {
             if (cep.length !== 8) return;
             const cityInput = document.getElementById('user-city');
             const streetInput = document.getElementById('user-street');
@@ -426,14 +518,13 @@
                 calculateRealShipping(cep, data.uf);
                 shippingArea.classList.remove('hidden');
             } catch (err) {
-                alertBox("Erro ao buscar CEP. Verifique a sua conexão.");
+                alertBox("Erro ao buscar CEP.");
                 cityInput.value = "";
             }
-        }
+        };
 
         function calculateRealShipping(cep, uf) {
             let price = 0;
-            // Lógica de cálculo baseada no Estado (UF) e CEP de origem
             if (cep === ORIGIN_CEP) {
                 price = 0; 
             } else {
@@ -441,61 +532,82 @@
                     case 'RJ': price = 18.50; break;
                     case 'SP': case 'MG': case 'ES': price = 28.90; break;
                     case 'PR': case 'SC': case 'RS': case 'DF': case 'GO': price = 42.00; break;
-                    default: price = 58.00; // Norte e Nordeste
+                    default: price = 58.00;
                 }
             }
-
             shippingValue = price;
             const badge = document.getElementById('shipping-value');
             if (badge) {
                 badge.innerText = price === 0 ? "GRÁTIS (RETIRADA)" : `R$ ${price.toFixed(2)}`;
             }
-            updateCartUI(); // Atualiza o total final com o frete
-        }
-
-        function addToCart(id) {
-            const prod = arsenalData.find(p => p.id === id);
-            const item = cart.find(i => i.id === id);
-            if(item) item.qty++;
-            else cart.push({...prod, qty: 1});
             updateCartUI();
         }
 
-        function updateCartUI() {
-            const subtotal = cart.reduce((a, b) => a + (b.price * b.qty), 0);
-            const total = subtotal + shippingValue;
-            
-            const badge = document.getElementById('cart-badge');
-            badge.innerText = cart.reduce((a,b) => a+b.qty, 0);
-            badge.classList.toggle('hidden', cart.length === 0);
-            
-            document.getElementById('cart-total-top').innerText = `R$ ${total.toFixed(2)}`;
-            document.getElementById('cart-grand-total').innerText = `R$ ${total.toFixed(2)}`;
-            document.getElementById('btn-next-step').disabled = cart.length === 0;
+        window.selectPayment = function(mode) {
+            selectedPayment = mode;
+            document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
+            document.getElementById(`pay-${mode.toLowerCase()}`).classList.add('selected');
+        };
 
-            const list = document.getElementById('cart-items');
-            list.innerHTML = cart.length ? cart.map(i => `
-                <div class="flex gap-4 items-center bg-white/5 p-4 border border-white/5 rounded">
-                    <div class="flex-1">
-                        <h4 class="text-[10px] font-bold uppercase font-sync">${i.name}</h4>
-                        <div class="text-blue-500 text-xs font-bold mt-1">R$ ${i.price.toFixed(2)} [x${i.qty}]</div>
-                    </div>
-                    <button onclick="removeFromCart(${i.id})" class="text-slate-500 hover:text-red-500"><i class="fas fa-trash"></i></button>
-                </div>
-            `).join('') : `<div class="text-center py-10 text-slate-600 text-[10px] font-sync uppercase">Carrinho Vazio</div>`;
-        }
+        // FINALIZAÇÃO COM FIREBASE (REGRA 1)
+        window.processOrder = async function() {
+            if (!user) {
+                alertBox("Sessão não autenticada. Aguarde...");
+                return;
+            }
 
-        function removeFromCart(id) {
-            cart = cart.filter(i => i.id !== id);
-            updateCartUI();
-        }
+            const f = (id) => document.getElementById(id).value.trim();
+            const customerData = {
+                name: f('user-name'), cpf: f('user-cpf'), cep: f('user-cep'),
+                rua: f('user-street'), num: f('user-num'), bairro: f('user-neighborhood'),
+                cidade: f('user-city'), comp: f('user-complement')
+            };
 
-        function toggleCart() {
-            const p = document.getElementById('cart-panel');
-            p.style.right = p.style.right === '0px' ? '-100%' : '0px';
-        }
+            if(!customerData.name || !customerData.cpf || !customerData.cep || !customerData.rua || !customerData.num || !customerData.cidade || !selectedPayment) {
+                alertBox("Preencha todos os campos obrigatórios.");
+                return;
+            }
 
-        function toggleFaq(btn) {
+            // Gravar no Firestore primeiro (Caminho Público conforme Regra 1)
+            try {
+                const ordersRef = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+                const orderPayload = {
+                    customer: customerData,
+                    items: cart,
+                    payment: selectedPayment,
+                    shipping: shippingValue,
+                    total: cart.reduce((a, b) => a + (b.price * b.qty), 0) + shippingValue,
+                    createdAt: serverTimestamp(),
+                    status: 'PENDENTE',
+                    uid: user.uid
+                };
+
+                await addDoc(ordersRef, orderPayload);
+                
+                // Preparar texto para o WhatsApp
+                let text = `🛸 *NOVO PEDIDO CROWLAB3D*\n\n`;
+                text += `👤 *CLIENTE:* ${customerData.name}\n`;
+                text += `📄 *CPF:* ${customerData.cpf}\n\n`;
+                text += `📍 *ENDEREÇO:* ${customerData.rua}, ${customerData.num}\n`;
+                if(customerData.comp) text += `🔹 *COMP:* ${customerData.comp}\n`;
+                text += `🔹 *BAIRRO:* ${customerData.bairro}\n`;
+                text += `🔹 *CIDADE:* ${customerData.cidade}\n`;
+                text += `🔹 *CEP:* ${customerData.cep}\n\n`;
+                text += `💳 *PAGAMENTO:* ${selectedPayment}\n\n`;
+                text += `📦 *ITENS:*\n`;
+                cart.forEach(i => text += `• ${i.name} (${i.qty}x) - R$ ${(i.qty*i.price).toFixed(2)}\n`);
+                text += `\n🚚 *FRETE:* R$ ${shippingValue.toFixed(2)}`;
+                text += `\n💰 *TOTAL: R$ ${orderPayload.total.toFixed(2)}*`;
+                
+                window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`);
+            } catch (error) {
+                console.error("Firestore Save Error:", error);
+                alertBox("Erro ao registrar pedido no sistema. Tente novamente.");
+            }
+        };
+
+        // UI HELPERS
+        window.toggleFaq = function(btn) {
             const content = btn.nextElementSibling;
             const icon = btn.querySelector('i');
             const isOpen = content.style.maxHeight;
@@ -505,74 +617,37 @@
                 content.style.maxHeight = content.scrollHeight + "px";
                 icon.className = "fas fa-minus text-[10px] text-blue-600";
             }
-        }
+        };
 
-        function goToCheckout() {
+        window.goToCheckout = function() {
             document.getElementById('view-cart').classList.add('hidden');
             document.getElementById('view-checkout').classList.remove('hidden');
             document.getElementById('panel-title').innerText = "Entrega";
-        }
+        };
 
-        function backToCart() {
+        window.backToCart = function() {
             document.getElementById('view-cart').classList.remove('hidden');
             document.getElementById('view-checkout').classList.add('hidden');
             document.getElementById('panel-title').innerText = "Carrinho";
-        }
+        };
 
-        function selectPayment(mode) {
-            selectedPayment = mode;
-            document.querySelectorAll('.payment-option').forEach(el => el.classList.remove('selected'));
-            document.getElementById(`pay-${mode.toLowerCase()}`).classList.add('selected');
-        }
-
-        function processOrder() {
-            const f = (id) => document.getElementById(id).value.trim();
-            const data = {
-                name: f('user-name'), cpf: f('user-cpf'), cep: f('user-cep'),
-                rua: f('user-street'), num: f('user-num'), bairro: f('user-neighborhood'),
-                cidade: f('user-city'), comp: f('user-complement')
-            };
-
-            if(!data.name || !data.cpf || !data.cep || !data.rua || !data.num || !data.cidade || !selectedPayment) {
-                alertBox("Preencha todos os campos obrigatórios.");
-                return;
-            }
-
-            let text = `🛸 *NOVO PEDIDO CROWLAB3D*\n\n`;
-            text += `👤 *CLIENTE:* ${data.name}\n`;
-            text += `📄 *CPF:* ${data.cpf}\n\n`;
-            text += `📍 *ENDEREÇO:* ${data.rua}, ${data.num}\n`;
-            if(data.comp) text += `🔹 *COMP:* ${data.comp}\n`;
-            text += `🔹 *BAIRRO:* ${data.bairro}\n`;
-            text += `🔹 *CIDADE:* ${data.cidade}\n`;
-            text += `🔹 *CEP:* ${data.cep}\n\n`;
-            text += `💳 *PAGAMENTO:* ${selectedPayment}\n\n`;
-            text += `📦 *ITENS:*\n`;
-            cart.forEach(i => text += `• ${i.name} (${i.qty}x) - R$ ${(i.qty*i.price).toFixed(2)}\n`);
-            text += `\n🚚 *FRETE:* R$ ${shippingValue.toFixed(2)}`;
-            text += `\n💰 *TOTAL: ${document.getElementById('cart-grand-total').innerText}*`;
-            window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(text)}`);
-        }
-
-        function alertBox(m) {
+        window.alertBox = function(m) {
             const b = document.createElement('div');
             b.className = "fixed bottom-5 left-5 right-5 bg-red-600 text-white p-4 z-[5000] text-[10px] font-bold uppercase tracking-widest text-center rounded shadow-2xl";
             b.innerText = m;
             document.body.appendChild(b);
             setTimeout(() => b.remove(), 4000);
-        }
+        };
 
-        function applyFilter(cat, btn) {
-            document.querySelectorAll('.filter-item').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            renderArsenal(cat);
-        }
-
-        function customOrder() {
+        window.customOrder = function() {
             window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=Olá! Gostaria de um orçamento personalizado.`);
-        }
+        };
 
-        document.addEventListener('DOMContentLoaded', () => renderArsenal());
+        // INIT
+        document.addEventListener('DOMContentLoaded', () => {
+            initAuth();
+            renderArsenal();
+        });
     </script>
 </body>
 </html>
